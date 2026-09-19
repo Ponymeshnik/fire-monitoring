@@ -11,15 +11,14 @@ def af_features(viirs: np.ndarray, aux: np.ndarray) -> np.ndarray:
     feats.append(I4 - I5)                    # ключевой признак
     feats.append(I3 - I2)                    # блик
     feats.append((I1 - I2) / (I1 + I2 + 1e-6))  # NDVI-подобный
-    # контекст: отклонение от медианы в окне 21x21
-    from scipy.ndimage import median_filter
-    med4 = median_filter(I4, size=21)
-    med45 = median_filter(I4 - I5, size=21)
-    feats.append(I4 - med4)
-    feats.append((I4 - I5) - med45)
-    # std фона
+    # контекст: отклонение от среднего фона в окне 21x21
     from scipy.ndimage import uniform_filter
+    diff45 = I4 - I5
     m4 = uniform_filter(I4, size=21)
+    mdiff = uniform_filter(diff45, size=21)
+    feats.append(I4 - m4)
+    feats.append(diff45 - mdiff)
+    # std фона
     m4sq = uniform_filter(I4 * I4, size=21)
     std4 = np.sqrt(np.maximum(m4sq - m4 * m4, 0))
     feats.append(std4)

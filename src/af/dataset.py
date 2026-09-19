@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import rasterio
 import torch
 from torch.utils.data import Dataset
 from .features import af_features
@@ -10,19 +9,19 @@ class AFDataset(Dataset):
         self.root = root
         self.split = split
         self.augment = augment
-        self.viirs_dir = os.path.join(root, "af", "viirs")
-        self.aux_dir = os.path.join(root, "af", "aux")
-        self.mask_dir = os.path.join(root, "af", "masks")
-        if chip_ids is None:
+        self.viirs_dir = os.path.join(root, "af", "viirs") if os.path.exists(os.path.join(root, "af", "viirs")) else os.path.join(root, "viirs")
+        self.aux_dir = os.path.join(root, "af", "aux") if os.path.exists(os.path.join(root, "af", "aux")) else os.path.join(root, "aux")
+        self.mask_dir = os.path.join(root, "af", "masks") if os.path.exists(os.path.join(root, "af", "masks")) else os.path.join(root, "masks")
+        if chip_ids is None and os.path.exists(self.viirs_dir):
             chip_ids = sorted([f.split("_VIIRS")[0] for f in os.listdir(self.viirs_dir)])
-        self.ids = chip_ids
+        self.ids = chip_ids or []
 
     def __len__(self):
         return len(self.ids)
 
     def _read(self, path):
-        with rasterio.open(path) as src:
-            return src.read().astype(np.float32)
+        from src.common.io import read_tif
+        return read_tif(path).astype(np.float32)
 
     def __getitem__(self, idx):
         cid = self.ids[idx]

@@ -19,7 +19,9 @@ def main():
     sample = pd.read_csv(os.path.join(args.data_dir, "sample_submission.csv"))
 
     # 2) AF
-    af_df = infer_af(args.train_dir, args.data_dir, "/tmp/af.csv", args.af_weights)
+    import tempfile
+    tmp_af = os.path.join(tempfile.gettempdir(), "af_infer_tmp.csv")
+    af_df = infer_af(args.train_dir, args.data_dir, tmp_af, args.af_weights)
     # 3) BS
     bs_rows = infer_bs(args.train_dir, args.data_dir, args.bs_weights)
     bs_df = pd.DataFrame(bs_rows)
@@ -33,6 +35,9 @@ def main():
     sample["rle"] = sample["rle"].fillna("")
 
     # 5) Записываем
+    out_dir = os.path.dirname(os.path.abspath(args.output))
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     sample.to_csv(args.output, index=False)
     print(f"Saved {args.output} with {len(sample)} rows")
 
