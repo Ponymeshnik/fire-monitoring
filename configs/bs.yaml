@@ -1,0 +1,7 @@
+data_root: "train"
+weights_dir: "weights/bs"
+seed: 42
+n_folds: 4
+epochs: 30
+batch_size: 4
+lr: 0.0003

@@ -1,0 +1,94 @@
+version: "3.9"
+
+# ---------------------------------------------------------------------------
+# Общие переменные (можно переопределить через .env)
+# ---------------------------------------------------------------------------
+x-common-env: &common-env
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+services:
+  # -------------------------------------------------------------------------
+  # Backend: FastAPI + NumPy, расчёт геометрии и маршрутизации
+  # -------------------------------------------------------------------------
+  fire-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fire-monitor
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      # DATA_DIR: /app/data
+      # DB_PATH: /app/storage/projects.db
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    # volumes:
+      # сценарии монтируем, чтобы жюри могло подкинуть свой JSON без пересборки
+      # - ./backend/data:/app/data:ro
+      # персистентное хранилище сохранённых проектов
+      # - backend-storage:/app/storage
+    # ports:
+      # - "${BACKEND_PORT:-8000}:8000"
+    # healthcheck:
+    #   test: ["CMD", "python", "-c",
+    #          "import urllib.request,sys; \
+    #           sys.exit(0) if urllib.request.urlopen('http://localhost:8000/api/health').status==200 else sys.exit(1)"]
+    #   interval: 15s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 20s
+    # networks:
+    #   - cosmo-net
+
+  # -------------------------------------------------------------------------
+  # Frontend: React SPA, собранный Vite, раздаётся nginx
+  # -------------------------------------------------------------------------
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #     args:
+  #       # пробрасываем URL API на этапе сборки (Vite вшивает его в бандл)
+  #       VITE_API_URL: ${VITE_API_URL:-/api}
+  #   container_name: cosmo-frontend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
+  #   ports:
+  #     - "${FRONTEND_PORT:-8080}:80"
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-qO-", "http://localhost/"]
+  #     interval: 15s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 10s
+  #   networks:
+  #     - cosmo-net
+
+  # -------------------------------------------------------------------------
+  # (Опционально) nginx-прокси перед обоими сервисами — единая точка входа
+  # -------------------------------------------------------------------------
+#   proxy:
+#     image: nginx:1.27-alpine
+#     container_name: cosmo-proxy
+#     restart: unless-stopped
+#     depends_on:
+#       - frontend
+#       - backend
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+#     ports:
+#       - "${PROXY_PORT:-80}:80"
+#     networks:
+#       - cosmo-net
+#     profiles:
+#       - with-proxy   # включается флагом: docker compose --profile with-proxy up
+
+# networks:
+#   cosmo-net:
+#     driver: bridge
+
+# volumes:
+#   backend-storage:
+#     driver: local
