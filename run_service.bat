@@ -1,24 +1,23 @@
 @echo off
-chcp 65001 > nul
 cd /d "%~dp0"
 
 echo ======================================================================
-echo  ЗАПУСК СЕРВИСА МОНИТОРИНГА ПРИРОДНЫХ ПОЖАРОВ (FASTAPI + LEAFLET UI)
+echo  STARTING FIRE MONITORING WEB SERVICE (FastAPI + Leaflet UI)
 echo ======================================================================
 
 set CONDA_PYTHON=C:\ProgramData\miniconda3\envs\plextract1\python.exe
 
 if exist "%CONDA_PYTHON%" (
-    echo [OK] Найдено conda-окружение: %CONDA_PYTHON%
-    echo Запускаем сервер...
+    echo [OK] Found Conda Python: %CONDA_PYTHON%
+    echo Starting server on http://localhost:8000 ...
     "%CONDA_PYTHON%" run_service.py
 ) else (
-    echo [INFO] Запуск через системный python...
+    echo [INFO] Using system python...
     python run_service.py
 )
 
 echo.
 echo ======================================================================
-echo Сервер был остановлен или произошла ошибка.
+echo Server stopped.
 echo ======================================================================
 pause
