@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.ndimage import uniform_filter
 
 def af_features(viirs: np.ndarray, aux: np.ndarray) -> np.ndarray:
     """
@@ -12,7 +13,6 @@ def af_features(viirs: np.ndarray, aux: np.ndarray) -> np.ndarray:
     feats.append(I3 - I2)                    # блик
     feats.append((I1 - I2) / (I1 + I2 + 1e-6))  # NDVI-подобный
     # контекст: отклонение от среднего фона в окне 21x21
-    from scipy.ndimage import uniform_filter
     diff45 = I4 - I5
     m4 = uniform_filter(I4, size=21)
     mdiff = uniform_filter(diff45, size=21)

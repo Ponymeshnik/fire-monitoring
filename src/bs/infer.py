@@ -20,8 +20,7 @@ def infer_bs(data_root, test_dir, weights_dir, device="cuda"):
             if f.startswith("bs_fold") and f.endswith(".pt"):
                 weight_path = os.path.join(weights_dir, f)
                 try:
-                    in_ch = ds[0][0].shape[0]
-                    m = build_bs_model(in_channels=in_ch).to(device)
+                    m = build_bs_model(in_channels=37).to(device)
                     m.load_state_dict(torch.load(weight_path, map_location=device))
                     m.eval()
                     models.append(m)
@@ -30,11 +29,14 @@ def infer_bs(data_root, test_dir, weights_dir, device="cuda"):
 
     rows = []
     if len(models) > 0:
-        dl = DataLoader(ds, batch_size=8, shuffle=False, num_workers=0)
+        dl = DataLoader(ds, batch_size=16, shuffle=False, num_workers=0)
         idx = 0
         with torch.no_grad():
             for x, _ in dl:
                 x = x.to(device)
+                mu = x.mean(dim=(2, 3), keepdim=True)
+                sd = x.std(dim=(2, 3), keepdim=True) + 1e-6
+                x = (x - mu) / sd
                 with torch.cuda.amp.autocast(enabled=(device == "cuda")):
                     probs = torch.stack([torch.softmax(m(x), dim=1) for m in models]).mean(0)
                 preds = torch.argmax(probs, dim=1).cpu().numpy().astype(np.uint8)

@@ -34,10 +34,11 @@ class AFDataset(Dataset):
         else:
             mask = np.zeros(feats.shape[1:], dtype=np.float32)
 
-        # Нормализация: per-chip z-score по каждому каналу
-        mu = feats.mean(axis=(1, 2), keepdims=True)
-        sd = feats.std(axis=(1, 2), keepdims=True) + 1e-6
-        feats = (feats - mu) / sd
+        # Нормализация на CPU только для train (для test выполняется параллельно на GPU)
+        if self.split == "train":
+            mu = feats.mean(axis=(1, 2), keepdims=True)
+            sd = feats.std(axis=(1, 2), keepdims=True) + 1e-6
+            feats = (feats - mu) / sd
 
         if self.augment and self.split == "train":
             if np.random.rand() < 0.5:

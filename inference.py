@@ -19,9 +19,7 @@ def main():
     sample = pd.read_csv(os.path.join(args.data_dir, "sample_submission.csv"))
 
     # 2) AF
-    import tempfile
-    tmp_af = os.path.join(tempfile.gettempdir(), "af_infer_tmp.csv")
-    af_df = infer_af(args.train_dir, args.data_dir, tmp_af, args.af_weights)
+    af_df = infer_af(args.train_dir, args.data_dir, None, args.af_weights)
     # 3) BS
     bs_rows = infer_bs(args.train_dir, args.data_dir, args.bs_weights)
     bs_df = pd.DataFrame(bs_rows)
