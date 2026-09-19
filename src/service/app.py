@@ -105,15 +105,6 @@ def yandex_view():
     return index()
 
 
-@app.get("/leaflet", response_class=HTMLResponse)
-def leaflet_view():
-    """Serves the alternative/legacy Leaflet Web GIS application."""
-    leaflet_path = os.path.join(STATIC_DIR, "leaflet.html")
-    if os.path.exists(leaflet_path):
-        return FileResponse(leaflet_path)
-    return index()
-
-
 @app.get("/health")
 def health():
     """Health check endpoint."""
