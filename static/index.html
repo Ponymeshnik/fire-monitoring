@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Геопортал космического мониторинга природных пожаров</title>
+  <title>Геопортал космического мониторинга и прогнозирования природных пожаров (Яндекс.Карты)</title>
   
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Yandex Maps JS API 2.1 -->
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
   
-  <!-- Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -27,10 +27,15 @@
       --sev1-color: #ca8a04;
       --sev2-color: #ea580c;
       --sev3-color: #dc2626;
+      --forecast-3h: #dc2626;
+      --forecast-6h: #ea580c;
+      --forecast-12h: #ca8a04;
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
       --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
     }
 
     * {
@@ -55,7 +60,7 @@
       width: 100vw;
     }
 
-    /* Top Enterprise Header */
+    /* Top Institutional Header */
     .navbar {
       height: 54px;
       background: var(--bg-navbar);
@@ -93,6 +98,19 @@
       text-transform: uppercase;
     }
 
+    .nav-badge-yandex {
+      background: #dc2626;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+      margin-left: 6px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+
     .nav-subtitle {
       font-size: 11px;
       color: var(--text-muted);
@@ -103,7 +121,7 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .status-badge {
@@ -127,7 +145,7 @@
       background-color: var(--success);
     }
 
-    /* Strict Technical Buttons */
+    /* Buttons */
     .btn {
       padding: 6px 12px;
       border-radius: 4px;
@@ -165,19 +183,32 @@
       color: #fff;
     }
 
-    .btn-yandex {
-      background: #1c2638;
-      border: 1px solid #b91c1c;
-      color: #f87171;
+    .btn-emercom {
+      background: rgba(220, 38, 38, 0.15);
+      border: 1px solid rgba(220, 38, 38, 0.5);
+      color: #fca5a5;
+      font-weight: 600;
     }
 
-    .btn-yandex:hover {
-      background: rgba(239, 68, 68, 0.15);
+    .btn-emercom:hover {
+      background: rgba(220, 38, 38, 0.25);
+      color: #fff;
       border-color: #ef4444;
+    }
+
+    .btn-forecast {
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    .btn-forecast:hover {
+      background: rgba(37, 99, 235, 0.35);
       color: #fff;
     }
 
-    /* Main Workspace */
+    /* Workspace */
     .workspace {
       display: flex;
       flex: 1;
@@ -186,10 +217,10 @@
       overflow: hidden;
     }
 
-    /* Left Sidebar */
+    /* Sidebar */
     .sidebar {
-      width: 370px;
-      min-width: 370px;
+      width: 390px;
+      min-width: 390px;
       background: var(--bg-sidebar);
       border-right: 1px solid var(--border-subtle);
       display: flex;
@@ -199,7 +230,7 @@
     }
 
     .sidebar-section {
-      padding: 14px 16px;
+      padding: 13px 16px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
@@ -220,27 +251,27 @@
 
     /* Form Controls */
     .form-group {
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .form-label {
       display: block;
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 10.5px;
+      font-weight: 600;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
 
     .form-input {
       width: 100%;
-      padding: 7px 10px;
+      padding: 6px 9px;
       background: var(--bg-input);
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
       color: #f8fafc;
-      font-size: 12px;
+      font-size: 11.5px;
       font-family: 'JetBrains Mono', monospace;
       outline: none;
       transition: border-color 0.15s;
@@ -261,12 +292,12 @@
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     .preset-pill {
-      font-size: 11px;
-      padding: 3px 7px;
+      font-size: 10.5px;
+      padding: 2px 6px;
       background: #17202e;
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
@@ -281,35 +312,53 @@
       color: #93c5fd;
     }
 
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 8px 0;
+      font-size: 11.5px;
+      color: #cbd5e1;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: var(--accent-blue);
+      width: 14px;
+      height: 14px;
+    }
+
     /* KPI Summary Cards */
     .kpi-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
-      padding: 12px;
-      margin-bottom: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
     }
 
     .kpi-title {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-muted);
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .kpi-value {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       color: #fff;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .kpi-sub {
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--text-dim);
-      margin-top: 3px;
+      margin-top: 2px;
       font-family: 'JetBrains Mono', monospace;
     }
 
@@ -321,14 +370,14 @@
       background: #151d2a;
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
-      padding: 7px 10px;
-      margin-bottom: 5px;
+      padding: 6px 9px;
+      margin-bottom: 4px;
     }
 
     .sev-info {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .sev-indicator {
@@ -338,7 +387,7 @@
     }
 
     .sev-name {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
     }
 
@@ -347,23 +396,23 @@
     }
 
     .sev-area {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .sev-pct {
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--text-dim);
     }
 
     .progress-bar-bg {
-      height: 6px;
+      height: 5px;
       background: #0f1520;
       border-radius: 3px;
       overflow: hidden;
       display: flex;
-      margin: 8px 0 12px 0;
+      margin: 6px 0 10px 0;
       border: 1px solid var(--border-subtle);
     }
 
@@ -382,29 +431,65 @@
       background: #151d2a;
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
-      padding: 8px;
+      padding: 7px;
     }
 
     .stat-label {
-      font-size: 10px;
+      font-size: 9.5px;
       text-transform: uppercase;
       color: var(--text-muted);
       font-weight: 600;
     }
 
     .stat-val {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: #fff;
       font-family: 'JetBrains Mono', monospace;
-      margin-top: 2px;
+      margin-top: 1px;
+    }
+
+    /* Threat Alerts Stack */
+    .threat-card {
+      background: #182232;
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid #dc2626;
+      border-radius: 3px;
+      padding: 7px 9px;
+      margin-bottom: 5px;
+      font-size: 11.5px;
+    }
+
+    .threat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .threat-title {
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .threat-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    .threat-body {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
     }
 
     /* Export Buttons Stack */
     .export-stack {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       margin-top: 4px;
     }
 
@@ -413,8 +498,8 @@
       border: 1px solid var(--border-subtle);
       color: #cbd5e1;
       justify-content: flex-start;
-      padding: 7px 10px;
-      font-size: 12px;
+      padding: 6px 9px;
+      font-size: 11.5px;
     }
 
     .btn-export:hover {
@@ -430,93 +515,36 @@
       position: relative;
     }
 
-    #map {
+    #yandex-map {
       width: 100%;
       height: 100%;
-      background-color: #0a0d14;
+      background-color: #0b0f17;
     }
 
-    /* Leaflet Overrides for Enterprise Dark */
-    .leaflet-bar {
-      border: 1px solid var(--border-subtle) !important;
-      border-radius: 3px !important;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
-    }
-
-    .leaflet-bar a {
-      background-color: #151d2a !important;
-      color: #cbd5e1 !important;
-      border-bottom: 1px solid var(--border-subtle) !important;
-    }
-
-    .leaflet-bar a:hover {
-      background-color: #1e283a !important;
-      color: #fff !important;
-    }
-
-    .leaflet-popup-content-wrapper {
-      background: #131924 !important;
-      color: #fff !important;
-      border: 1px solid #28354b !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important;
-      border-radius: 4px !important;
-    }
-
-    .leaflet-popup-tip {
-      background: #131924 !important;
-    }
-
-    .popup-content {
-      padding: 2px;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .popup-title {
-      font-size: 13px;
-      font-weight: 700;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 4px;
-      margin-bottom: 6px;
-    }
-
-    .popup-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 3px;
-      color: var(--text-muted);
-    }
-
-    .popup-val {
-      font-weight: 600;
-      color: #fff;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* Floating Legend */
+    /* Floating Strict Legend */
     .map-legend {
       position: absolute;
-      bottom: 20px;
+      bottom: 24px;
       right: 18px;
       background: rgba(17, 23, 34, 0.94);
+      backdrop-filter: blur(8px);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
-      padding: 10px 12px;
+      padding: 10px 14px;
       z-index: 800;
-      font-size: 11.5px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      font-size: 11px;
+      pointer-events: auto;
+      max-width: 250px;
     }
 
     .legend-title {
-      font-weight: 700;
       font-size: 10px;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-muted);
       margin-bottom: 6px;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 3px;
     }
 
     .legend-item {
@@ -524,7 +552,7 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 4px;
-      color: var(--text-main);
+      color: #cbd5e1;
     }
 
     .legend-swatch {
@@ -541,27 +569,11 @@
       border: 1px solid #fff;
     }
 
-    /* Hotspot marker styling without cartoonish glow */
-    .fire-marker-container {
-      position: relative;
-      width: 16px;
-      height: 16px;
-    }
-
-    .fire-marker-core {
-      width: 12px;
-      height: 12px;
-      background: #ef4444;
-      border: 1.5px solid #ffffff;
-      border-radius: 50%;
-      margin: 2px;
-    }
-
-    /* Modal */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       display: none;
       align-items: center;
       justify-content: center;
@@ -572,9 +584,12 @@
       background: #141b27;
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
-      width: 480px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      width: 680px;
+      max-width: 92vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
     }
 
     .modal-header {
@@ -582,8 +597,7 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 8px;
-      margin-bottom: 14px;
+      padding: 14px 18px;
     }
 
     .modal-title {
@@ -602,8 +616,78 @@
       cursor: pointer;
     }
 
-    .modal-close:hover {
-      color: #fff;
+    .modal-close:hover { color: #fff; }
+
+    .modal-body {
+      padding: 18px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .modal-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Official SitRep Document Style */
+    .sitrep-doc {
+      background: #0f1522;
+      border: 1px solid var(--border-subtle);
+      padding: 18px;
+      border-radius: 3px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .sitrep-badge-top {
+      text-align: center;
+      border-bottom: 1px solid #243147;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .sitrep-h1 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .sitrep-h2 {
+      font-size: 11px;
+      color: #93c5fd;
+      font-weight: 600;
+      margin-top: 3px;
+    }
+
+    .sitrep-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 11.5px;
+    }
+
+    .sitrep-table td, .sitrep-table th {
+      border: 1px solid var(--border-subtle);
+      padding: 6px 8px;
+    }
+
+    .sitrep-table th {
+      background: #172233;
+      color: #cbd5e1;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .sitrep-highlight {
+      color: #ef4444;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .dropzone {
@@ -618,31 +702,12 @@
     .dropzone:hover {
       border-color: var(--border-active);
     }
-
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1a2332;
-      border: 1px solid var(--border-active);
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 3px;
-      font-size: 12px;
-      display: none;
-      align-items: center;
-      gap: 8px;
-      z-index: 3000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Top Navigation Bar -->
+  <!-- Top Institutional Header -->
   <header class="navbar">
     <div class="nav-brand">
       <div class="nav-emblem">
@@ -653,25 +718,31 @@
         </svg>
       </div>
       <div>
-        <div class="nav-title">Геопортал космического мониторинга природных пожаров</div>
-        <div class="nav-subtitle">Нижнее Поволжье и Подонье &bull; Оперативный геоаналитический комплекс</div>
+        <div class="nav-title">
+          Геопортал космического мониторинга и прогнозирования природных пожаров
+          <span class="nav-badge-yandex">ЯНДЕКС.КАРТЫ</span>
+        </div>
+        <div class="nav-subtitle">Нижнее Поволжье и Подонье &bull; Интеллектуальный комплекс СППР (Ротермел / Гюйгенс / 1-ЧС)</div>
       </div>
     </div>
 
     <div class="nav-actions">
-      <a href="/yandex" class="btn btn-yandex">
-        <span>Режим: Яндекс.Карты</span>
-      </a>
-      <div class="status-badge">
-        <div class="status-dot"></div>
-        <span id="serviceStatus">СИСТЕМА АКТИВНА</span>
-      </div>
+      <button class="btn btn-emercom" onclick="openSitrepModal()">
+        <span>📋</span> Сводка 1-ЧС МЧС
+      </button>
       <button class="btn btn-secondary" onclick="openUploadModal()">
         <span>Векторизация GeoTIFF</span>
       </button>
-      <button class="btn btn-secondary" onclick="fitAOI()">
+      <button class="btn btn-secondary" onclick="fitYandexAOI()">
         <span>Границы AOI</span>
       </button>
+      <a href="/leaflet" class="btn btn-secondary" title="Резервный режим на OpenStreetMap">
+        <span>🌐 Leaflet</span>
+      </a>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        <span>СИСТЕМА АКТИВНА</span>
+      </div>
     </div>
   </header>
 
@@ -683,9 +754,6 @@
       <div class="sidebar-section">
         <div class="section-header">
           <div class="section-title">01. Параметры пространственного запроса</div>
-          <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 10.5px;" onclick="enableDrawBox()">
-            Рамка
-          </button>
         </div>
 
         <div class="form-group">
@@ -712,7 +780,13 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 4px;" onclick="executeQuery()">
+        <!-- False Alarm Flare Filter Toggle -->
+        <label class="checkbox-row" title="Исключает стационарные факелы Астраханского ГПЗ и НПЗ Волгограда">
+          <input type="checkbox" id="chkFilterFlares" onchange="loadData()">
+          <span>Фильтровать техногенные факелы (скрыть ложные тревоги)</span>
+        </label>
+
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 2px;" onclick="loadData()">
           <span id="querySpinner" style="display:none;">⏳</span>
           <span>Запросить данные мониторинга</span>
         </button>
@@ -722,7 +796,7 @@
       <div class="sidebar-section">
         <div class="section-header">
           <div class="section-title">02. Оперативная аналитическая сводка</div>
-          <span id="reportStatus" style="font-size: 10.5px; color: var(--accent-blue); font-weight: 500;">Данные актуальны</span>
+          <span id="reportStatus" style="font-size: 10px; color: var(--accent-blue); font-weight: 500;">Данные актуальны</span>
         </div>
 
         <!-- KPI: Total Burn Area -->
@@ -775,7 +849,7 @@
           </div>
         </div>
 
-        <!-- Visual Multi-segment Progress Bar -->
+        <!-- Progress Bar -->
         <div class="progress-bar-bg">
           <div id="progSev1" class="progress-seg-1" style="width: 33%;"></div>
           <div id="progSev2" class="progress-seg-2" style="width: 33%;"></div>
@@ -785,20 +859,72 @@
         <!-- Operational Statistics -->
         <div class="stats-grid">
           <div class="stat-box">
-            <div class="stat-label">Термоточки (VIIRS)</div>
+            <div class="stat-label">Очаги горения (VIIRS)</div>
             <div class="stat-val" id="statTpCount">0</div>
           </div>
           <div class="stat-box">
             <div class="stat-label">Контуры гарей (S2)</div>
             <div class="stat-val" id="statContCount">0</div>
           </div>
+          <div class="stat-box" style="grid-column: span 2;">
+            <div class="stat-label">Предварительный эко-ущерб (Минприроды)</div>
+            <div class="stat-val" id="statDamageRub" style="color: #f87171; font-size: 14px;">0 ₽</div>
+          </div>
         </div>
       </div>
 
-      <!-- Section 3: Data Export -->
+      <!-- Section 3: Predictive Fire Spread & Threat Analysis -->
       <div class="sidebar-section">
-        <div class="section-title" style="margin-bottom: 8px;">03. Экспорт данных и отчетности</div>
+        <div class="section-header">
+          <div class="section-title">03. Моделирование динамики фронта</div>
+          <span style="font-size: 10px; color: #60a5fa; font-weight: 600;">Ротермел / Гюйгенс</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ветер (км/ч): <span id="windSpeedDisplay" style="color:#93c5fd;">24</span></label>
+            <input type="range" id="windSpeedSlider" min="5" max="55" value="24" style="width:100%; cursor:pointer;" oninput="updateWindSpeed(this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Азимут сноса: <span id="windAzDisplay" style="color:#93c5fd;">240° (ЮЗ)</span></label>
+            <select id="windAzSelect" class="form-input" style="padding: 4px 6px;" onchange="updateWindAzimuth(this.value)">
+              <option value="240" selected>Юго-Запад (240°, Суховей)</option>
+              <option value="180">Юг (180°)</option>
+              <option value="90">Восток (90°)</option>
+              <option value="0">Север (0°)</option>
+              <option value="270">Запад (270°)</option>
+              <option value="135">Юго-Восток (135°)</option>
+              <option value="45">Северо-Восток (45°)</option>
+              <option value="315">Северо-Запад (315°)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-forecast" style="width: 100%; justify-content: center; margin-top: 2px;" onclick="calculateSpreadForecast()">
+          <span>🚀 Рассчитать динамику фронта (+3ч / +6ч / +12ч)</span>
+        </button>
+
+        <!-- Threat Exposure Alerts -->
+        <div style="margin-top: 10px;">
+          <div class="form-label" style="display: flex; justify-content: space-between;">
+            <span>Угрозы объектам и инфраструктуре:</span>
+            <span id="threatsCountBadge" style="color: #ef4444; font-weight: 700;">0</span>
+          </div>
+          <div id="threatsContainer" style="max-height: 140px; overflow-y: auto; margin-top: 4px;">
+            <div style="font-size: 11px; color: var(--text-dim); text-align: center; padding: 8px 0;">
+              Нажмите «Рассчитать динамику», чтобы оценить подступ фронта
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Data Export & Documentation -->
+      <div class="sidebar-section">
+        <div class="section-title" style="margin-bottom: 8px;">04. Экспорт данных и отчетности</div>
         <div class="export-stack">
+          <button class="btn btn-emercom" onclick="openSitrepModal()">
+            <span>📋 Сформировать донесение МЧС (форма 1-ЧС)</span>
+          </button>
           <button class="btn btn-export" onclick="exportData('geojson', 'contours')">
             <span>Выгрузить полигоны гарей (GeoJSON)</span>
           </button>
@@ -814,26 +940,38 @@
 
     <!-- Map Viewport -->
     <main class="map-container">
-      <div id="map"></div>
+      <div id="yandex-map"></div>
 
-      <!-- Floating Legend -->
+      <!-- Floating Strict Legend -->
       <div class="map-legend">
         <div class="legend-title">Условные обозначения</div>
         <div class="legend-item">
           <div class="legend-dot-fire"></div>
-          <span>Термоточка горения (VIIRS 375м)</span>
+          <span>Природный пожар (VIIRS 375м)</span>
+        </div>
+        <div class="legend-item">
+          <span style="font-size: 13px;">🏭</span>
+          <span>Техногенный факел (ГПЗ/НПЗ)</span>
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background-color: var(--sev1-color);"></div>
-          <span>Поражение I степени (слабая)</span>
+          <span>Гари: Поражение I ст. (слабая)</span>
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background-color: var(--sev2-color);"></div>
-          <span>Поражение II степени (средняя)</span>
+          <span>Гари: Поражение II ст. (средняя)</span>
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background-color: var(--sev3-color);"></div>
-          <span>Поражение III степени (сильная)</span>
+          <span>Гари: Поражение III ст. (сильная)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="border: 1.5px solid #dc2626; background: rgba(220,38,38,0.3);"></div>
+          <span>Прогноз фронта +3ч (Критический)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="border: 1.5px solid #ea580c; background: rgba(234,88,12,0.2);"></div>
+          <span>Прогноз фронта +6ч (Опасность)</span>
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background: transparent; border: 1.5px dashed #38bdf8;"></div>
@@ -844,510 +982,617 @@
   </div>
 </div>
 
-<!-- Upload GeoTIFF Modal -->
-<div id="uploadModal" class="modal-overlay">
+<!-- Modal 1: Official EMERCOM 1-CHS SitRep -->
+<div id="sitrepModal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">Векторизация растровой маски (GeoTIFF)</div>
-      <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+      <div class="modal-title">Формализованное оперативное донесение МЧС России (Форма 1-ЧС)</div>
+      <button class="modal-close" onclick="closeSitrepModal()">&times;</button>
     </div>
-    
-    <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
-      <div style="font-weight: 600; margin-bottom: 4px;">Выберите файл или перетащите его в эту область</div>
-      <div style="font-size: 11px; color: var(--text-dim);">Поддерживаются растровые маски Sentinel-2 / GeoTIFF (*.tif, *.tiff)</div>
-      <input type="file" id="fileInput" accept=".tif,.tiff" style="display:none;" onchange="handleFileSelected(this.files)">
-    </div>
+    <div class="modal-body">
+      <div class="sitrep-doc" id="sitrepDocPrint">
+        <div class="sitrep-badge-top">
+          <div class="sitrep-h1">МЧС РОССИИ &bull; ГЛАВНОЕ УПРАВЛЕНИЕ ПО ЮЖНОМУ ФЕДЕРАЛЬНОМУ ОКРУГУ</div>
+          <div class="sitrep-h2">ОПЕРАТИВНАЯ СВОДКА ПО ПРИРОДНЫМ ПОЖАРАМ (ФОРМА 1-ЧС)</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+            Документ <span id="sitrepDocNum" style="color:#fff; font-family:'JetBrains Mono',monospace;">ЧС-2026-042</span> &bull; 
+            Время фиксации: <span id="sitrepDocTime" style="color:#fff;">19.09.2026 18:30 МСК</span>
+          </div>
+        </div>
 
-    <div id="selectedFileInfo" style="margin-top: 10px; display: none; font-size: 12px; color: #93c5fd;">
-      Файл: <span id="selectedFileName" style="font-weight: 600;"></span>
-    </div>
-
-    <div class="form-row" style="margin-top: 12px;">
-      <div class="form-group">
-        <label class="form-label">Шаг сетки GSD (метры)</label>
-        <input type="number" id="uploadGsd" class="form-input" value="20.0" step="1.0">
+        <table class="sitrep-table">
+          <tr>
+            <th style="width: 35%;">Параметр</th>
+            <th>Значение и оперативные данные</th>
+          </tr>
+          <tr>
+            <td><strong>Субъекты и район</strong></td>
+            <td id="sitrepRegion">Нижнее Поволжье и Подонье (Волгоградская / Ростовская обл.)</td>
+          </tr>
+          <tr>
+            <td><strong>Эпицентр и координаты</strong></td>
+            <td id="sitrepCoords" style="font-family:'JetBrains Mono',monospace;">48.6500° N, 43.5500° E</td>
+          </tr>
+          <tr>
+            <td><strong>Ближайший объект риска</strong></td>
+            <td id="sitrepNearestAsset">х. Пятиизбянский &bull; Расстояние: 3.8 км &bull; Расчетный подступ: 48 мин</td>
+          </tr>
+          <tr>
+            <td><strong>Суммарная площадь выгорания</strong></td>
+            <td><span id="sitrepTotalHa" class="sitrep-highlight">0.0 га</span> (<span id="sitrepTotalKm">0.0 км²</span>)</td>
+          </tr>
+          <tr>
+            <td><strong>Структура тяжести поражения</strong></td>
+            <td>
+              Класс 1 (слабая): <strong id="sitrepSev1">0.0 га</strong><br>
+              Класс 2 (средняя): <strong id="sitrepSev2">0.0 га</strong><br>
+              Класс 3 (сильная): <strong id="sitrepSev3">0.0 га</strong>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Активные очаги и мощность</strong></td>
+            <td>
+              Очагов горения: <strong id="sitrepHotspots">0</strong> &bull;
+              Макс. FRP: <strong id="sitrepMaxFrp">68.4 МВт</strong>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Ветровой режим и фронт</strong></td>
+            <td>
+              Скорость ветра: <strong id="sitrepWindSpeed">24 км/ч</strong> &bull; 
+              Направление сноса: <strong id="sitrepWindAz">240° (ЮЗ)</strong> &bull;
+              Скорость фронта: <strong id="sitrepForwardSpeed">2.8 км/ч</strong>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Экологический ущерб (Минприроды)</strong></td>
+            <td>
+              <span id="sitrepDamageTotal" style="color:#ef4444; font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace;">0 ₽</span><br>
+              <span style="font-size:10px; color:var(--text-dim);">Расчет по ПП РФ №1730 с учетом выбросов CO2</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Рекомендуемый наряд сил</strong></td>
+            <td id="sitrepForces" style="font-size: 11px; line-height: 1.5;">
+              Сводный отряд ГУ МЧС (32 чел., 8 ед. АЦ), 2 бульдозера с лесопожарными плугами, ранцевые огнетушители РЛО «Ермак».
+            </td>
+          </tr>
+        </table>
       </div>
-      <div class="form-group" style="display: flex; align-items: flex-end;">
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 34px;" id="uploadSubmitBtn" onclick="submitUploadMask()">
-          <span>Выполнить векторизацию</span>
-        </button>
-      </div>
     </div>
-    
-    <div id="uploadProgress" style="display: none; margin-top: 10px; font-size: 12px; color: var(--text-muted); text-align: center;">
-      Выполняется извлечение геометрий и расчет площадей...
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="window.print()">
+        <span>🖨️ Печать документа</span>
+      </button>
+      <button class="btn btn-primary" onclick="closeSitrepModal()">
+        <span>Закрыть</span>
+      </button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast" class="toast">
-  <span id="toastMsg">Уведомление</span>
+<!-- Modal 2: Upload GeoTIFF Modal -->
+<div id="uploadModal" class="modal-overlay">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-header">
+      <div class="modal-title">Векторизация растровой маски GeoTIFF</div>
+      <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="dropzone" onclick="document.getElementById('maskFileInput').click()">
+        <input type="file" id="maskFileInput" accept=".tif,.tiff" style="display:none;" onchange="handleFileSelect(event)">
+        <div style="font-size: 28px; margin-bottom: 8px;">🛰️</div>
+        <div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">Выберите файл GeoTIFF маски</div>
+        <div style="font-size: 11px; color: var(--text-dim);" id="fileSelectName">Поддерживаются целочисленные маски классов 0, 1, 2, 3</div>
+      </div>
+      <div style="margin-top: 14px;">
+        <label class="form-label">Пространственное разрешение (GSD, м)</label>
+        <input type="number" id="maskGsd" class="form-input" value="20.0" step="1.0">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeUploadModal()">Отмена</button>
+      <button class="btn btn-primary" id="btnUploadSubmit" onclick="submitMaskUpload()">Векторизовать в GeoJSON</button>
+    </div>
+  </div>
 </div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
 <script>
-  // Global Application State
-  let map = null;
-  let aoiLayerGroup = null;
-  let contoursLayerGroup = null;
-  let thermopointsLayerGroup = null;
+  let yMap = null;
+  let aoiCollection = null;
+  let contoursCollection = null;
+  let hotspotsCollection = null;
+  let forecastCollection = null;
+  let threatsCollection = null;
 
-  // Drawing Box State
-  let isDrawingBox = false;
-  let drawStartLatLng = null;
-  let tempDrawBox = null;
+  let lastQueryData = null;
+  let currentWindSpeed = 24.0;
+  let currentWindAzimuth = 240.0;
 
-  // Preset Regions
   const PRESETS = {
-    aoi: "38.3,44.6,48.0,52.7",
-    volgograd: "42.5,47.8,46.5,51.2",
-    rostov: "38.3,46.0,42.5,49.8",
-    astrakhan: "46.0,45.4,48.0,48.5",
-    kalmykia: "42.0,44.8,47.5,47.8",
-    saratov: "42.5,50.8,48.0,52.7"
+    'aoi': '38.3,44.6,48.0,52.7',
+    'volgograd': '42.5,47.8,46.5,51.2',
+    'rostov': '38.3,46.0,42.5,49.8',
+    'astrakhan': '46.0,45.4,48.0,48.5',
+    'kalmykia': '42.0,44.8,47.5,47.8',
+    'saratov': '45.0,50.5,50.5,52.8'
   };
 
-  // Initialize Application
-  window.addEventListener('DOMContentLoaded', () => {
-    initMap();
-    checkHealth();
-    loadAOI();
-    executeQuery();
-  });
-
-  // Initialize Leaflet Map
-  function initMap() {
-    map = L.map('map', {
-      center: [48.5, 43.5],
-      zoom: 6,
-      zoomControl: true
-    });
-
-    // Basemaps
-    const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; CARTO, &copy; OpenStreetMap',
-      maxZoom: 19
-    });
-
-    const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: '&copy; Esri & GIS Community',
-      maxZoom: 18
-    });
-
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 19
-    });
-
-    const yandexTiles = L.tileLayer('https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=ru_RU', {
-      attribution: '&copy; Яндекс.Карты',
-      maxZoom: 18
-    });
-
-    cartoDark.addTo(map);
-
-    // Layer Groups
-    aoiLayerGroup = L.layerGroup().addTo(map);
-    contoursLayerGroup = L.layerGroup().addTo(map);
-    thermopointsLayerGroup = L.layerGroup().addTo(map);
-
-    const baseMaps = {
-      "Спутник (Esri World Imagery)": esriSatellite,
-      "Темная основа (CartoDB Dark)": cartoDark,
-      "Яндекс Схема (Тайлы)": yandexTiles,
-      "OpenStreetMap (Светлая)": osm
-    };
-
-    const overlays = {
-      "Граница AOI": aoiLayerGroup,
-      "Контуры гарей (Sentinel-2)": contoursLayerGroup,
-      "Термоточки (VIIRS 375м)": thermopointsLayerGroup
-    };
-
-    L.control.layers(baseMaps, overlays, { position: 'topright' }).addTo(map);
-
-    map.on('mousedown', onMapMouseDown);
-    map.on('mousemove', onMapMouseMove);
-    map.on('mouseup', onMapMouseUp);
+  // Convert GeoJSON [lon, lat] -> Yandex [lat, lon]
+  function toYandexCoords(coords) {
+    if (!Array.isArray(coords)) return coords;
+    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+      return [coords[1], coords[0]];
+    }
+    return coords.map(toYandexCoords);
   }
 
-  // Health check
-  async function checkHealth() {
-    try {
-      const res = await fetch('/health');
-      const data = await res.json();
-      if (data.status === 'ok') {
-        document.getElementById('serviceStatus').textContent = 'СИСТЕМА АКТИВНА';
-      }
-    } catch (e) {
-      document.getElementById('serviceStatus').textContent = 'НЕТ СВЯЗИ';
-      document.getElementById('serviceStatus').style.color = '#ef4444';
+  ymaps.ready(initYandexMap);
+
+  function initYandexMap() {
+    yMap = new ymaps.Map("yandex-map", {
+      center: [48.5, 43.5], // Нижнее Поволжье и Подонье
+      zoom: 6,
+      type: 'yandex#hybrid',
+      controls: ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl']
+    });
+
+    aoiCollection = new ymaps.GeoObjectCollection({}, {});
+    contoursCollection = new ymaps.GeoObjectCollection({}, { strokeWidth: 1.5, fillOpacity: 0.55 });
+    hotspotsCollection = new ymaps.GeoObjectCollection({}, {});
+    forecastCollection = new ymaps.GeoObjectCollection({}, {});
+    threatsCollection = new ymaps.GeoObjectCollection({}, {});
+
+    yMap.geoObjects.add(aoiCollection);
+    yMap.geoObjects.add(forecastCollection);
+    yMap.geoObjects.add(contoursCollection);
+    yMap.geoObjects.add(hotspotsCollection);
+    yMap.geoObjects.add(threatsCollection);
+
+    loadAOI();
+    loadData();
+  }
+
+  function setBboxPreset(name) {
+    if (PRESETS[name]) {
+      document.getElementById('bboxInput').value = PRESETS[name];
+      loadData();
     }
   }
 
-  // Load AOI Polygon
+  function fitYandexAOI() {
+    if (yMap && aoiCollection && aoiCollection.getLength() > 0) {
+      yMap.setBounds(aoiCollection.getBounds(), { checkZoomRange: true });
+    } else if (yMap) {
+      yMap.setBounds([[44.6, 38.3], [52.7, 48.0]], { checkZoomRange: true });
+    }
+  }
+
   async function loadAOI() {
     try {
       const res = await fetch('/api/aoi');
       if (!res.ok) return;
       const data = await res.json();
       
-      aoiLayerGroup.clearLayers();
-      const aoiLayer = L.geoJSON(data, {
-        style: (feature) => {
-          return {
-            color: '#38bdf8',
-            weight: 1.8,
-            dashArray: '5, 5',
-            fillColor: '#38bdf8',
-            fillOpacity: 0.04
-          };
-        },
-        onEachFeature: (feature, layer) => {
-          if (feature.properties) {
-            const p = feature.properties;
-            layer.bindPopup(`
-              <div class="popup-content">
-                <div class="popup-title">${p.name || 'Граница зоны мониторинга'}</div>
-                <div class="popup-row"><span>Назначение:</span> <span class="popup-val">${p.role || 'AOI'}</span></div>
-                <div class="popup-row"><span>Площадь:</span> <span class="popup-val">${(p.area_km2 || 435273).toLocaleString()} км²</span></div>
-                <div class="popup-row"><span>Субъекты:</span> <span class="popup-val" style="font-size:11px;">${p.subjects || 'Поволжье'}</span></div>
-              </div>
-            `);
+      aoiCollection.removeAll();
+      if (data.features) {
+        data.features.forEach(feat => {
+          if (feat.geometry && feat.geometry.coordinates) {
+            const yCoords = toYandexCoords(feat.geometry.coordinates);
+            const poly = new ymaps.Polygon(yCoords, {
+              hintContent: `<strong>${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
+              balloonContentHeader: `<span style="font-weight:700; color:#1e3a8a; font-size:13px;">🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</span>`,
+              balloonContentBody: `
+                <div style="font-size:12px; line-height:1.6; color:#1f2937; padding:4px 0;">
+                  <div><strong>Назначение:</strong> ${feat.properties.role || 'Оперативный спутниковый контроль'}</div>
+                  <div><strong>Охват площади:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
+                  <div><strong>Субъекты РФ:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
+                  <div><strong>Период наблюдений:</strong> ${feat.properties.seasons || '2019–2025'}</div>
+                </div>
+              `
+            }, {
+              strokeColor: '#38bdf8',
+              strokeWidth: 2,
+              strokePattern: [6, 4],
+              fillColor: '#38bdf8',
+              fillOpacity: 0.05
+            });
+            aoiCollection.add(poly);
           }
-        }
-      });
-      aoiLayerGroup.addLayer(aoiLayer);
+        });
+      }
     } catch (e) {
-      console.log("AOI layer fetch:", e);
+      console.log("AOI loading error:", e);
     }
   }
 
-  // Execute Query
-  async function executeQuery() {
+  async function loadData() {
     const bbox = document.getElementById('bboxInput').value.trim();
-    const dateFrom = document.getElementById('dateFrom').value;
-    const dateTo = document.getElementById('dateTo').value;
-    
-    document.getElementById('querySpinner').style.display = 'inline-block';
-    
+    const dFrom = document.getElementById('dateFrom').value;
+    const dTo = document.getElementById('dateTo').value;
+    const filterFlares = document.getElementById('chkFilterFlares').checked;
+    const spinner = document.getElementById('querySpinner');
+
+    if (spinner) spinner.style.display = 'inline';
+
     try {
-      const url = `/query?bbox=${encodeURIComponent(bbox)}&date_from=${dateFrom}&date_to=${dateTo}`;
+      const url = `/query?bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}&filter_flares=${filterFlares}`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error("Query failed: " + res.statusText);
+      if (!res.ok) throw new Error("Query error: " + res.status);
       const data = await res.json();
+      lastQueryData = data;
 
       renderData(data);
-      showToast("Данные мониторинга успешно обновлены", "success");
     } catch (err) {
       console.error(err);
-      showToast("Ошибка запроса: " + err.message, "error");
     } finally {
-      document.getElementById('querySpinner').style.display = 'none';
+      if (spinner) spinner.style.display = 'none';
     }
   }
 
-  // Render Features and Update Analytics
   function renderData(data) {
-    contoursLayerGroup.clearLayers();
-    thermopointsLayerGroup.clearLayers();
+    contoursCollection.removeAll();
+    hotspotsCollection.removeAll();
 
     // 1. Render Contours
     if (data.contours && data.contours.features) {
-      const contoursLayer = L.geoJSON(data.contours, {
-        style: (feature) => {
-          const cid = feature.properties.class_id;
-          let color = '#dc2626';
-          if (cid === 1) color = '#ca8a04';
-          else if (cid === 2) color = '#ea580c';
+      document.getElementById('statContCount').textContent = data.contours.features.length;
 
-          return {
-            color: color,
-            weight: 1.5,
-            fillColor: color,
-            fillOpacity: 0.55
-          };
-        },
-        onEachFeature: (feature, layer) => {
-          const p = feature.properties;
-          const sevColor = p.class_id === 1 ? '#ca8a04' : (p.class_id === 2 ? '#ea580c' : '#dc2626');
-          
-          layer.bindTooltip(`
-            <strong>${p.contour_id}</strong><br>
-            Степень: ${p.severity}<br>
-            Площадь: <strong>${p.area_ha} га</strong>
-          `, { sticky: true });
-
-          layer.bindPopup(`
-            <div class="popup-content">
-              <div class="popup-title" style="color: ${sevColor};">
-                ${p.contour_id}
-              </div>
-              <div class="popup-row"><span>Степень поражения:</span> <span class="popup-val" style="color:${sevColor}">${p.severity} (Класс ${p.class_id})</span></div>
-              <div class="popup-row"><span>Площадь гари:</span> <span class="popup-val">${p.area_ha} га</span></div>
-              <div class="popup-row"><span>Спутник:</span> <span class="popup-val">${p.satellite || 'Sentinel-2'}</span></div>
-              <div class="popup-row"><span>Дата съемки:</span> <span class="popup-val">${p.date || '—'}</span></div>
-              ${p.fire_event_id ? `<div class="popup-row"><span>ID пожара:</span> <span class="popup-val">${p.fire_event_id}</span></div>` : ''}
-            </div>
-          `);
-
-          layer.on('mouseover', function () {
-            this.setStyle({ fillOpacity: 0.8, weight: 2.2 });
-          });
-          layer.on('mouseout', function () {
-            this.setStyle({ fillOpacity: 0.55, weight: 1.5 });
-          });
+      data.contours.features.forEach(feat => {
+        const cp = feat.properties || {};
+        const cid = cp.class_id || 1;
+        let color = '#dc2626';
+        let badgeBg = '#fef2f2';
+        let badgeColor = '#991b1b';
+        if (cid === 1) {
+          color = '#ca8a04';
+          badgeBg = '#fefce8';
+          badgeColor = '#854d0e';
+        } else if (cid === 2) {
+          color = '#ea580c';
+          badgeBg = '#fff7ed';
+          badgeColor = '#9a3412';
         }
+
+        const cId = cp.contour_id || 'Контур гари';
+        const cSev = cp.severity || (cid === 1 ? 'слабая' : (cid === 2 ? 'средняя' : 'сильная'));
+        const cArea = cp.area_ha !== undefined ? Number(cp.area_ha).toFixed(2) : '—';
+        const cSat = cp.satellite || 'Sentinel-2 MSI (GSD 20м)';
+        const cDate = cp.date || '—';
+        const cFireEvent = cp.fire_event_id || '';
+
+        const yandexCoords = toYandexCoords(feat.geometry.coordinates);
+
+        const poly = new ymaps.Polygon(yandexCoords, {
+          hintContent: `<strong>${cId}</strong><br>Степень: ${cSev}<br>Площадь: ${cArea} га`,
+          balloonContentHeader: `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-weight:700; color:#0f172a; font-size:13px;">${cId}</span>
+              <span style="background:${badgeBg}; color:${badgeColor}; font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:3px; border:1px solid ${color};">
+                КЛАСС ${cid} (${cSev.toUpperCase()})
+              </span>
+            </div>
+          `,
+          balloonContentBody: `
+            <div style="font-size:12px; line-height:1.6; color:#334155; padding: 4px 0;">
+              <div><strong>Площадь выгорания:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#0f172a;">${cArea} га</span></div>
+              <div><strong>Спутниковый сенсор:</strong> ${cSat}</div>
+              <div><strong>Дата фиксации:</strong> ${cDate}</div>
+              ${cFireEvent ? `<div><strong>ID пожарного события:</strong> ${cFireEvent}</div>` : ''}
+              ${cp.source_chip ? `<div><strong>Идентификатор чипа:</strong> ${cp.source_chip}</div>` : ''}
+            </div>
+          `
+        }, {
+          fillColor: color,
+          fillOpacity: 0.55,
+          strokeColor: color,
+          strokeWidth: 1.5
+        });
+
+        contoursCollection.add(poly);
       });
-      contoursLayerGroup.addLayer(contoursLayer);
+    } else {
+      document.getElementById('statContCount').textContent = '0';
     }
 
-    // 2. Render Thermopoints
+    // 2. Render Hotspots
     if (data.thermopoints && data.thermopoints.features) {
-      data.thermopoints.features.forEach(feat => {
-        const coords = feat.geometry.coordinates;
+      const tpList = data.thermopoints.features;
+      const wfCount = tpList.filter(f => !f.properties.is_flare).length;
+      const flareCount = tpList.filter(f => f.properties.is_flare).length;
+      
+      document.getElementById('statTpCount').innerHTML = `${wfCount} <span style="font-size:11px; color:var(--text-dim);">(факелы: ${flareCount})</span>`;
+
+      tpList.forEach(feat => {
+        const coords = [feat.geometry.coordinates[1], feat.geometry.coordinates[0]];
         const p = feat.properties || {};
 
         const bTemp = p.brightness_k || p.brightness_temp_k || 334.2;
         const bTempC = (bTemp - 273.15).toFixed(1);
         const frpVal = p.frp_mw || p.frp || 45.0;
-        const confVal = p.confidence ? Math.round(p.confidence) : 92;
+        const confVal = p.confidence ? Math.round(p.confidence) : 90;
+        const satVal = p.satellite || "VIIRS 375m (SNPP / NOAA-20)";
+        const dateVal = p.date || (p.acq_datetime ? p.acq_datetime.split('T')[0] : '—');
+        const tpId = p.id || 'TP_VIIRS';
+        const isFlare = p.is_flare || false;
+        const pointLabel = p.point_label || (isFlare ? "Техногенный факел" : "Природный пожар");
 
-        const fireIcon = L.divIcon({
-          className: 'fire-custom-icon',
-          html: `
-            <div class="fire-marker-container">
-              <div class="fire-marker-core"></div>
+        const iconPreset = isFlare ? 'islands#grayIcon' : 'islands#redFireIcon';
+
+        const placemark = new ymaps.Placemark(coords, {
+          hintContent: `<strong>${pointLabel} (${tpId})</strong><br>T: ${bTemp} K (+${bTempC} °C)<br>FRP: ${frpVal} МВт`,
+          balloonContentHeader: `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-weight:700; color:${isFlare ? '#475569' : '#991b1b'}; font-size:13px;">
+                ${isFlare ? '🏭 ТЕХНОГЕННЫЙ ФАКЕЛ' : '🚨 ОЧАГ ГОРЕНИЯ'} (${tpId})
+              </span>
+              <span style="background:${isFlare ? '#f1f5f9' : '#fee2e2'}; color:${isFlare ? '#334155' : '#991b1b'}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">
+                VIIRS 375M
+              </span>
             </div>
           `,
-          iconSize: [16, 16],
-          iconAnchor: [8, 8]
+          balloonContentBody: `
+            <div style="font-size:12px; line-height:1.6; color:#334155; padding: 4px 0;">
+              <div><strong>Тип классификации:</strong> <span style="font-weight:700; color:${isFlare ? '#2563eb' : '#dc2626'};">${pointLabel}</span></div>
+              ${p.facility ? `<div><strong>Предприятие:</strong> <strong>${p.facility}</strong></div>` : ''}
+              <div><strong>Яркостная температура:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#b91c1c;">${bTemp} K (+${bTempC} °C)</span></div>
+              <div><strong>Мощность излучения (FRP):</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700;">${frpVal} МВт</span></div>
+              <div><strong>Достоверность детекции:</strong> <span style="color:#047857; font-weight:700;">${confVal}%</span></div>
+              <div><strong>Спутник / Сенсор:</strong> ${satVal}</div>
+              <div><strong>Дата регистрации:</strong> ${dateVal}</div>
+              <div><strong>Рекомендация:</strong> <em>${p.action_recommendation || 'Контроль'}</em></div>
+            </div>
+          `
+        }, {
+          preset: iconPreset
         });
 
-        const marker = L.marker([coords[1], coords[0]], { icon: fireIcon });
-        marker.bindPopup(`
-          <div class="popup-content">
-            <div class="popup-title" style="color: #f87171;">
-              Термоточка горения (${p.id || 'VIIRS'})
-            </div>
-            <div class="popup-row"><span>Яркостная темп.:</span> <span class="popup-val">${bTemp} K (+${bTempC} °C)</span></div>
-            <div class="popup-row"><span>Мощность (FRP):</span> <span class="popup-val">${frpVal} МВт</span></div>
-            <div class="popup-row"><span>Достоверность:</span> <span class="popup-val" style="color: #34d399;">${confVal}%</span></div>
-            <div class="popup-row"><span>Сенсор / Спутник:</span> <span class="popup-val">${p.satellite || 'VIIRS 375m'}</span></div>
-            <div class="popup-row"><span>Дата / Время:</span> <span class="popup-val">${p.date || p.acq_datetime || '—'}</span></div>
-            <div class="popup-row"><span>Координаты:</span> <span class="popup-val">${coords[1].toFixed(4)}°N, ${coords[0].toFixed(4)}°E</span></div>
-          </div>
-        `);
-        thermopointsLayerGroup.addLayer(marker);
+        hotspotsCollection.add(placemark);
       });
+    } else {
+      document.getElementById('statTpCount').textContent = '0';
     }
 
-    // 3. Update Analytics Panel
+    // 3. Update Operational Analytics
     if (data.report) {
-      updateReportUI(data.report);
-    }
-  }
+      const r = data.report;
+      const totalHa = r.total_ha || r.total_burned_area_ha || 0;
+      const totalKm2 = (totalHa / 100).toFixed(2);
+      
+      document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size:14px; font-weight:400; color:var(--text-muted)">га</span>`;
+      document.getElementById('kpiTotalKm').textContent = `${totalKm2} км² (GSD: 20м = 0.04 га/пикс)`;
 
-  // Update Analytical UI
-  function updateReportUI(r) {
-    const totalHa = r.total_ha || r.total_burned_area_ha || 0.0;
-    document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">га</span>`;
-    document.getElementById('kpiTotalKm').textContent = `${(totalHa / 100.0).toFixed(2)} км² (20×20м = 0.04 га/пикс)`;
+      const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
+      const s2 = r.sev2_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0;
+      const s3 = r.sev3_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0;
 
-    const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0.0;
-    const s2 = r.sev2_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0.0;
-    const s3 = r.sev3_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0.0;
-    const p1 = r.sev1_pct || (totalHa > 0 ? ((s1 / totalHa) * 100).toFixed(1) : 0);
-    const p2 = r.sev2_pct || (totalHa > 0 ? ((s2 / totalHa) * 100).toFixed(1) : 0);
-    const p3 = r.sev3_pct || (totalHa > 0 ? ((s3 / totalHa) * 100).toFixed(1) : 0);
+      document.getElementById('sev1Ha').textContent = Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+      document.getElementById('sev2Ha').textContent = Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+      document.getElementById('sev3Ha').textContent = Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
 
-    document.getElementById('sev1Ha').textContent = `${Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1})} га`;
-    document.getElementById('sev1Pct').textContent = `${p1}%`;
-    document.getElementById('sev2Ha').textContent = `${Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1})} га`;
-    document.getElementById('sev2Pct').textContent = `${p2}%`;
-    document.getElementById('sev3Ha').textContent = `${Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1})} га`;
-    document.getElementById('sev3Pct').textContent = `${p3}%`;
+      const p1 = r.sev1_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["1"]) || (totalHa > 0 ? (s1/totalHa*100).toFixed(1) : 0);
+      const p2 = r.sev2_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["2"]) || (totalHa > 0 ? (s2/totalHa*100).toFixed(1) : 0);
+      const p3 = r.sev3_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["3"]) || (totalHa > 0 ? (s3/totalHa*100).toFixed(1) : 0);
 
-    document.getElementById('progSev1').style.width = `${p1}%`;
-    document.getElementById('progSev2').style.width = `${p2}%`;
-    document.getElementById('progSev3').style.width = `${p3}%`;
+      document.getElementById('sev1Pct').textContent = p1 + '%';
+      document.getElementById('sev2Pct').textContent = p2 + '%';
+      document.getElementById('sev3Pct').textContent = p3 + '%';
 
-    const tpCount = r.total_thermopoints || r.active_hotspots_count || 0;
-    const contCount = r.total_contours || 0;
-    document.getElementById('statTpCount').textContent = tpCount;
-    document.getElementById('statContCount').textContent = contCount;
-  }
+      document.getElementById('progSev1').style.width = p1 + '%';
+      document.getElementById('progSev2').style.width = p2 + '%';
+      document.getElementById('progSev3').style.width = p3 + '%';
 
-  // Presets
-  function setBboxPreset(key) {
-    if (PRESETS[key]) {
-      document.getElementById('bboxInput').value = PRESETS[key];
-      executeQuery();
-      const parts = PRESETS[key].split(',').map(Number);
-      if (parts.length === 4) {
-        map.fitBounds([[parts[1], parts[0]], [parts[3], parts[2]]]);
+      if (r.damage_assessment) {
+        document.getElementById('statDamageRub').textContent = r.damage_assessment.total_damage_formatted;
       }
     }
   }
 
-  function fitAOI() {
-    setBboxPreset('aoi');
+  // Predictive Fire Spread Calculation
+  function updateWindSpeed(val) {
+    currentWindSpeed = parseFloat(val);
+    document.getElementById('windSpeedDisplay').textContent = val;
   }
 
-  // Drawing Box Handlers
-  function enableDrawBox() {
-    isDrawingBox = true;
-    map.getContainer().style.cursor = 'crosshair';
-    showToast("Зажмите левую кнопку мыши и растяните область на карте", "info");
+  function updateWindAzimuth(val) {
+    currentWindAzimuth = parseFloat(val);
+    const sel = document.getElementById('windAzSelect');
+    const txt = sel.options[sel.selectedIndex].text;
+    document.getElementById('windAzDisplay').textContent = `${val}°`;
   }
 
-  function onMapMouseDown(e) {
-    if (!isDrawingBox) return;
-    map.dragging.disable();
-    drawStartLatLng = e.latlng;
-    if (tempDrawBox) map.removeLayer(tempDrawBox);
-    tempDrawBox = L.rectangle([drawStartLatLng, drawStartLatLng], {
-      color: '#3b82f6',
-      weight: 1.5,
-      dashArray: '4, 4',
-      fillColor: '#3b82f6',
-      fillOpacity: 0.1
-    }).addTo(map);
-  }
+  async function calculateSpreadForecast() {
+    const bbox = document.getElementById('bboxInput').value.trim();
+    try {
+      const url = `/api/forecast?bbox=${encodeURIComponent(bbox)}&wind_speed=${currentWindSpeed}&wind_deg=${currentWindAzimuth}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Forecast failed");
+      const data = await res.json();
 
-  function onMapMouseMove(e) {
-    if (!isDrawingBox || !drawStartLatLng || !tempDrawBox) return;
-    tempDrawBox.setBounds(L.latLngBounds(drawStartLatLng, e.latlng));
-  }
-
-  function onMapMouseUp(e) {
-    if (!isDrawingBox || !drawStartLatLng) return;
-    isDrawingBox = false;
-    map.dragging.enable();
-    map.getContainer().style.cursor = '';
-
-    const bounds = L.latLngBounds(drawStartLatLng, e.latlng);
-    const minLon = bounds.getWest().toFixed(4);
-    const minLat = bounds.getSouth().toFixed(4);
-    const maxLon = bounds.getEast().toFixed(4);
-    const maxLat = bounds.getNorth().toFixed(4);
-
-    document.getElementById('bboxInput').value = `${minLon},${minLat},${maxLon},${maxLat}`;
-    executeQuery();
-  }
-
-  // Export Data
-  function exportData(fmt, layer) {
-    let url = '';
-    if (fmt === 'geojson') {
-      url = `/export/geojson?layer=${layer}`;
-    } else if (fmt === 'shapefile') {
-      url = `/export/shapefile?layer=${layer}`;
-    }
-    if (url) {
-      showToast(`Формирование выгрузки ${fmt.toUpperCase()}...`, "info");
-      window.location.href = url;
+      renderForecast(data);
+    } catch (e) {
+      console.error("Forecast error:", e);
     }
   }
 
-  // Upload Modal
+  function renderForecast(data) {
+    forecastCollection.removeAll();
+    threatsCollection.removeAll();
+
+    // 1. Render Forecast Ellipses
+    if (data.forecast_collection && data.forecast_collection.features) {
+      data.forecast_collection.features.forEach(feat => {
+        const p = feat.properties;
+        const yCoords = toYandexCoords(feat.geometry.coordinates);
+
+        const poly = new ymaps.Polygon(yCoords, {
+          hintContent: `<strong>${p.title}</strong><br>Площадь фронта: ${p.area_ha} га<br>Скорость кромки: ${p.forward_speed_kmh} км/ч`,
+          balloonContentHeader: `<span style="color:${p.color}; font-weight:700;">${p.title}</span>`,
+          balloonContentBody: `
+            <div style="font-size:12px; line-height:1.5;">
+              <div><strong>Уровень опасности:</strong> <span style="color:${p.color}; font-weight:700;">${p.level}</span></div>
+              <div><strong>Прогнозная площадь:</strong> ${p.area_ha} га</div>
+              <div><strong>Скорость продвижения кромки:</strong> ${p.forward_speed_kmh} км/ч</div>
+              <div><strong>Ветровой режим:</strong> ${p.wind_speed_kmh} км/ч (азимут ${p.wind_azimuth_deg}°)</div>
+            </div>
+          `
+        }, {
+          fillColor: p.color,
+          fillOpacity: p.fill_opacity,
+          strokeColor: p.color,
+          strokeWidth: 2
+        });
+
+        forecastCollection.add(poly);
+      });
+    }
+
+    // 2. Render Threatened Assets
+    const tContainer = document.getElementById('threatsContainer');
+    const threats = data.threats || [];
+    document.getElementById('threatsCountBadge').textContent = threats.length;
+
+    if (threats.length === 0) {
+      tContainer.innerHTML = '<div style="font-size:11px; color:var(--success); text-align:center; padding:8px 0;">В опасном секторе населенных пунктов не обнаружено</div>';
+    } else {
+      let html = '';
+      threats.forEach(t => {
+        html += `
+          <div class="threat-card" style="border-left-color: ${t.badge_color};">
+            <div class="threat-header">
+              <span class="threat-title">${t.asset_name}</span>
+              <span class="threat-badge" style="background:${t.badge_color}; color:#fff;">${t.risk_level}</span>
+            </div>
+            <div class="threat-body">
+              <div>Расстояние: <strong>${t.distance_km} км</strong> (азимут ${t.bearing_deg}°)</div>
+              <div>Расчетный подступ огня: <strong style="color:${t.badge_color};">${t.eta_formatted}</strong></div>
+            </div>
+          </div>
+        `;
+
+        // Add Placemark on map
+        const mark = new ymaps.Placemark([t.lat, t.lon], {
+          hintContent: `<strong>Угроза: ${t.asset_name}</strong><br>Подступ: ${t.eta_formatted}`,
+          balloonContentHeader: `<span style="color:${t.badge_color}; font-weight:700;">⚠️ Угроза инфраструктуре: ${t.asset_name}</span>`,
+          balloonContentBody: `
+            <div style="font-size:12px; line-height:1.5;">
+              <div><strong>Тип объекта:</strong> ${t.asset_type} (${t.region})</div>
+              <div><strong>Дистанция до очага:</strong> ${t.distance_km} км</div>
+              <div><strong>Расчетное время подступа:</strong> <span style="color:${t.badge_color}; font-weight:700;">${t.eta_formatted}</span></div>
+              <div><strong>Статус реагирования:</strong> Необходима организация минерализованных полос</div>
+            </div>
+          `
+        }, {
+          preset: 'islands#attentionIcon'
+        });
+        threatsCollection.add(mark);
+      });
+      tContainer.innerHTML = html;
+    }
+  }
+
+  // SitRep Modal Functions
+  async function openSitrepModal() {
+    const bbox = document.getElementById('bboxInput').value.trim();
+    const dFrom = document.getElementById('dateFrom').value;
+    const dTo = document.getElementById('dateTo').value;
+
+    try {
+      const url = `/api/sitrep?bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}&wind_speed=${currentWindSpeed}&wind_deg=${currentWindAzimuth}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Sitrep load error");
+      const doc = await res.json();
+
+      document.getElementById('sitrepDocNum').textContent = doc.document_number;
+      document.getElementById('sitrepDocTime').textContent = doc.timestamp_msk;
+      document.getElementById('sitrepRegion').textContent = doc.location.region;
+      document.getElementById('sitrepCoords').textContent = doc.location.center_coords;
+      document.getElementById('sitrepNearestAsset').textContent = `${doc.location.nearest_asset} • ${doc.location.distance_to_asset_km} км (${doc.location.eta_to_asset})`;
+      document.getElementById('sitrepTotalHa').textContent = doc.fire_parameters.total_area_ha + ' га';
+      document.getElementById('sitrepTotalKm').textContent = doc.fire_parameters.total_area_km2 + ' км²';
+      document.getElementById('sitrepSev1').textContent = doc.fire_parameters.sev1_ha + ' га';
+      document.getElementById('sitrepSev2').textContent = doc.fire_parameters.sev2_ha + ' га';
+      document.getElementById('sitrepSev3').textContent = doc.fire_parameters.sev3_ha + ' га';
+      document.getElementById('sitrepHotspots').textContent = doc.fire_parameters.active_hotspots;
+      document.getElementById('sitrepMaxFrp').textContent = doc.fire_parameters.max_frp_mw + ' МВт';
+      document.getElementById('sitrepWindSpeed').textContent = doc.forecast.wind_speed_kmh + ' км/ч';
+      document.getElementById('sitrepWindAz').textContent = doc.forecast.wind_azimuth_deg + '°';
+      document.getElementById('sitrepForwardSpeed').textContent = doc.forecast.forward_rate_kmh + ' км/ч';
+      document.getElementById('sitrepDamageTotal').textContent = doc.damage_assessment.total_damage_formatted;
+      document.getElementById('sitrepForces').textContent = doc.operational_response.recommended_forces;
+
+      document.getElementById('sitrepModal').style.display = 'flex';
+    } catch (e) {
+      console.error(e);
+      alert("Не удалось загрузить данные для формы 1-ЧС");
+    }
+  }
+
+  function closeSitrepModal() {
+    document.getElementById('sitrepModal').style.display = 'none';
+  }
+
+  // Upload Modal Functions
   function openUploadModal() {
     document.getElementById('uploadModal').style.display = 'flex';
   }
 
   function closeUploadModal() {
     document.getElementById('uploadModal').style.display = 'none';
-    document.getElementById('fileInput').value = '';
-    document.getElementById('selectedFileInfo').style.display = 'none';
-    document.getElementById('uploadProgress').style.display = 'none';
   }
 
-  function handleFileSelected(files) {
-    if (files && files.length > 0) {
-      document.getElementById('selectedFileName').textContent = files[0].name;
-      document.getElementById('selectedFileInfo').style.display = 'block';
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) {
+      document.getElementById('fileSelectName').textContent = `Выбран: ${file.name} (${(file.size/1024).toFixed(1)} КБ)`;
     }
   }
 
-  async function submitUploadMask() {
-    const fileInput = document.getElementById('fileInput');
+  async function submitMaskUpload() {
+    const fileInput = document.getElementById('maskFileInput');
     if (!fileInput.files || fileInput.files.length === 0) {
-      showToast("Выберите файл GeoTIFF маски", "error");
+      alert("Пожалуйста, выберите файл GeoTIFF");
       return;
     }
-
-    const file = fileInput.files[0];
-    const gsd = document.getElementById('uploadGsd').value || 20.0;
+    const gsd = document.getElementById('maskGsd').value || 20.0;
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", fileInput.files[0]);
 
-    document.getElementById('uploadProgress').style.display = 'block';
-    document.getElementById('uploadSubmitBtn').disabled = true;
+    const btn = document.getElementById('btnUploadSubmit');
+    btn.disabled = true;
+    btn.textContent = "Векторизация...";
 
     try {
       const res = await fetch(`/upload_mask?gsd=${gsd}`, {
-        method: 'POST',
+        method: "POST",
         body: formData
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Векторизация не удалась");
-      }
-
+      if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
+      alert(`Успешно векторизовано! Общая площадь гари: ${data.report.total_ha} га`);
       closeUploadModal();
-      
-      contoursLayerGroup.clearLayers();
-      const uploadedLayer = L.geoJSON(data.contours, {
-        style: (feat) => {
-          const cid = feat.properties.class_id;
-          let color = '#dc2626';
-          if (cid === 1) color = '#ca8a04';
-          else if (cid === 2) color = '#ea580c';
-          return { color: color, weight: 1.5, fillColor: color, fillOpacity: 0.6 };
-        },
-        onEachFeature: (feat, layer) => {
-          const p = feat.properties;
-          layer.bindPopup(`
-            <div class="popup-content">
-              <div class="popup-title" style="color: #60a5fa;">Загруженный контур</div>
-              <div class="popup-row"><span>Степень:</span> <span class="popup-val">${p.severity}</span></div>
-              <div class="popup-row"><span>Площадь:</span> <span class="popup-val">${p.area_ha} га</span></div>
-            </div>
-          `);
-        }
-      });
-      contoursLayerGroup.addLayer(uploadedLayer);
-      if (uploadedLayer.getBounds().isValid()) {
-        map.fitBounds(uploadedLayer.getBounds());
+      if (data.contours) {
+        renderData({ contours: data.contours, thermopoints: { features: [] }, report: data.report });
       }
-
-      if (data.report) {
-        updateReportUI(data.report);
-      }
-      showToast("Маска успешно векторизована и нанесена на карту", "success");
     } catch (err) {
-      console.error(err);
-      showToast("Ошибка векторизации: " + err.message, "error");
+      alert("Ошибка векторизации GeoTIFF: " + err.message);
     } finally {
-      document.getElementById('uploadProgress').style.display = 'none';
-      document.getElementById('uploadSubmitBtn').disabled = false;
+      btn.disabled = false;
+      btn.textContent = "Векторизовать в GeoJSON";
     }
   }
 
-  // Toast Helper
-  function showToast(msg, type = 'info') {
-    const t = document.getElementById('toast');
-    const tm = document.getElementById('toastMsg');
-    tm.textContent = msg;
-    t.style.display = 'flex';
-    setTimeout(() => {
-      t.style.display = 'none';
-    }, 3500);
+  function exportData(format, layer) {
+    const bbox = document.getElementById('bboxInput').value.trim();
+    const dFrom = document.getElementById('dateFrom').value;
+    const dTo = document.getElementById('dateTo').value;
+    let url = '';
+    if (format === 'geojson') {
+      url = `/export/geojson?layer=${layer}&bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}`;
+    } else if (format === 'shapefile') {
+      url = `/export/shapefile?layer=${layer}&bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}`;
+    }
+    window.location.href = url;
   }
 </script>
 

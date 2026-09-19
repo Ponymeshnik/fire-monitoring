@@ -12,6 +12,13 @@ from fastapi.staticfiles import StaticFiles
 from .vectorize import mask_to_geojson, read_mask_and_transform
 from .report import area_report, report_from_contours
 from .prepare_demo import prepare_demo
+from .fire_spread import (
+    build_fire_spread_forecast,
+    classify_thermopoint,
+    generate_emercom_sitrep,
+    calculate_ecological_damage_rub,
+    KNOWN_INDUSTRIAL_FLARES
+)
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CACHE_DIR = os.path.join(BASE_DIR, "demo_cache")
@@ -24,9 +31,9 @@ WGS84_PRJ = (
 )
 
 app = FastAPI(
-    title="Fire Monitoring Service",
-    description="КосмоХакатон 2026: Информационно-аналитический сервис двухэтапного мониторинга природных пожаров (VIIRS, Sentinel-2)",
-    version="2.0.0"
+    title="Fire Monitoring Service (GIS & Predictive AI)",
+    description="КосмоХакатон 2026: Информационно-аналитический комплекс двухэтапного мониторинга, моделирования динамики пожаров (модель Ротермела) и генерации отчетности 1-ЧС",
+    version="2.5.0"
 )
 
 # Mount static files
@@ -82,7 +89,10 @@ def startup_event():
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    """Serves the interactive Leaflet Web GIS application."""
+    """
+    Serves the primary flagship Yandex Maps GIS interface with
+    spread forecasting, threat exposure, flare filtering, and 1-CHS reporting.
+    """
     index_path = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
@@ -91,18 +101,36 @@ def index():
 
 @app.get("/yandex", response_class=HTMLResponse)
 def yandex_view():
-    """Serves the interactive Yandex Maps GIS application."""
-    yandex_path = os.path.join(STATIC_DIR, "yandex.html")
-    if os.path.exists(yandex_path):
-        return FileResponse(yandex_path)
-    return HTMLResponse("<h1>Yandex Maps Interface Loading...</h1>")
+    """Alias to the primary Yandex Maps interface."""
+    return index()
+
+
+@app.get("/leaflet", response_class=HTMLResponse)
+def leaflet_view():
+    """Serves the alternative/legacy Leaflet Web GIS application."""
+    leaflet_path = os.path.join(STATIC_DIR, "leaflet.html")
+    if os.path.exists(leaflet_path):
+        return FileResponse(leaflet_path)
+    return index()
 
 
 @app.get("/health")
 def health():
     """Health check endpoint."""
     ensure_demo_cache()
-    return {"status": "ok", "service": "Fire Monitoring Service", "version": "2.0.0"}
+    return {
+        "status": "ok",
+        "service": "Fire Monitoring Service (Predictive GIS)",
+        "version": "2.5.0",
+        "primary_engine": "Yandex Maps API 2.1 (Hybrid/Satellite)",
+        "features": [
+            "Active Fire detection (VIIRS 375m)",
+            "Burn Severity segmentation (Sentinel-2 dNBR)",
+            "Huygens/Rothermel Fire Spread Forecasting (+3h/+6h/+12h)",
+            "Industrial Flare & False Alarm Disambiguation",
+            "EMERCOM 1-CHS Emergency SitRep Generator"
+        ]
+    }
 
 
 @app.get("/api/aoi")
@@ -125,9 +153,11 @@ def query(
     bbox: str = Query("38.3,44.6,48.0,52.7", description="Bounding box 'min_lon,min_lat,max_lon,max_lat'"),
     date_from: str = Query("2025-04-01", description="Start date YYYY-MM-DD"),
     date_to: str = Query("2025-10-31", description="End date YYYY-MM-DD"),
+    filter_flares: bool = Query(False, description="Filter out stationary industrial flares and false alarms")
 ):
     """
-    Query fire monitoring data filtered by spatial bounding box and date interval.
+    Query fire monitoring data filtered by spatial bounding box, date interval,
+    and optional industrial flare filter.
     Returns: {"thermopoints": FeatureCollection, "contours": FeatureCollection, "report": {...}}
     """
     ensure_demo_cache()
@@ -144,15 +174,19 @@ def query(
 
     min_lon, min_lat, max_lon, max_lat = parse_bbox(bbox)
 
-    # 1. Filter thermopoints
+    # 1. Filter and classify thermopoints
     filtered_tp = []
+    flares_detected_count = 0
+    flares_filtered_count = 0
+    wildfires_count = 0
+
     for feat in tp_data.get("features", []):
         pt = feat.get("geometry", {}).get("coordinates", [])
         if len(pt) >= 2 and is_point_in_bbox(pt[0], pt[1], min_lon, min_lat, max_lon, max_lat):
             props = feat.get("properties", {})
             p_date = props.get("date", "")
             if (not p_date) or (date_from <= p_date <= date_to):
-                # Ensure all alias keys exist so no UI field is ever undefined
+                # Ensure all alias keys exist
                 b_k = props.get("brightness_k") or props.get("brightness_temp_k") or 334.2
                 frp = props.get("frp_mw") or props.get("frp") or 45.6
                 props["brightness_k"] = round(float(b_k), 1)
@@ -161,6 +195,25 @@ def query(
                 props["frp"] = round(float(frp), 1)
                 props["confidence"] = round(float(props.get("confidence", 92.5)), 1)
                 props["satellite"] = props.get("satellite") or "VIIRS (SNPP 375m)"
+
+                # Run classification: wildfire vs industrial flare vs agricultural burn
+                cl = classify_thermopoint(lat=pt[1], lon=pt[0], frp=props["frp_mw"], temp_k=props["brightness_k"])
+                props["point_type"] = cl["point_type"]
+                props["point_label"] = cl["label"]
+                props["is_flare"] = cl["is_flare"]
+                props["is_wildfire"] = cl["is_wildfire"]
+                props["action_recommendation"] = cl["action_recommendation"]
+                if cl.get("facility"):
+                    props["facility"] = cl["facility"]
+
+                if cl["is_flare"]:
+                    flares_detected_count += 1
+                    if filter_flares:
+                        flares_filtered_count += 1
+                        continue  # Skip appending filtered flare
+                else:
+                    wildfires_count += 1
+
                 filtered_tp.append(feat)
 
     # 2. Filter contours
@@ -182,6 +235,17 @@ def query(
     dyn_report["query_bbox"] = [min_lon, min_lat, max_lon, max_lat]
     dyn_report["query_date_from"] = date_from
     dyn_report["query_date_to"] = date_to
+    dyn_report["flares_detected_count"] = flares_detected_count
+    dyn_report["flares_filtered_count"] = flares_filtered_count
+    dyn_report["wildfires_count"] = wildfires_count
+
+    # Calculate preliminary ecological and economic damage in Rubles
+    dyn_report["damage_assessment"] = calculate_ecological_damage_rub(
+        total_ha=dyn_report["total_ha"],
+        sev1_ha=dyn_report["sev1_ha"],
+        sev2_ha=dyn_report["sev2_ha"],
+        sev3_ha=dyn_report["sev3_ha"]
+    )
 
     return JSONResponse({
         "thermopoints": {
@@ -200,6 +264,74 @@ def query(
     })
 
 
+@app.get("/api/forecast")
+def get_fire_spread_forecast(
+    bbox: str = Query("38.3,44.6,48.0,52.7", description="Bounding box 'min_lon,min_lat,max_lon,max_lat'"),
+    wind_speed: float = Query(24.0, description="Wind speed in km/h (10..60)"),
+    wind_deg: float = Query(240.0, description="Wind azimuth in degrees (0..360, towards direction)")
+):
+    """
+    Computes Huygens/Rothermel fire spread forecast ellipses for +3h, +6h, +12h
+    and evaluates threat exposure for settlements and critical infrastructure.
+    """
+    ensure_demo_cache()
+    tp_path = os.path.join(CACHE_DIR, "thermopoints.geojson")
+    if not os.path.exists(tp_path):
+        raise HTTPException(503, "Demo cache not ready")
+
+    with open(tp_path, "r", encoding="utf-8") as f:
+        tp_data = json.load(f)
+
+    min_lon, min_lat, max_lon, max_lat = parse_bbox(bbox)
+    filtered_tp = []
+    for feat in tp_data.get("features", []):
+        pt = feat.get("geometry", {}).get("coordinates", [])
+        if len(pt) >= 2 and is_point_in_bbox(pt[0], pt[1], min_lon, min_lat, max_lon, max_lat):
+            filtered_tp.append(feat)
+
+    forecast_result = build_fire_spread_forecast(
+        hotspots=filtered_tp,
+        wind_speed_kmh=wind_speed,
+        wind_azimuth_deg=wind_deg
+    )
+
+    return JSONResponse(forecast_result)
+
+
+@app.get("/api/sitrep")
+def get_emercom_sitrep(
+    bbox: str = Query("38.3,44.6,48.0,52.7", description="Bounding box 'min_lon,min_lat,max_lon,max_lat'"),
+    date_from: str = Query("2025-04-01", description="Start date YYYY-MM-DD"),
+    date_to: str = Query("2025-10-31", description="End date YYYY-MM-DD"),
+    wind_speed: float = Query(24.0, description="Wind speed in km/h"),
+    wind_deg: float = Query(240.0, description="Wind azimuth in degrees")
+):
+    """
+    Generates formal EMERCOM 1-CHS Emergency SitRep document data.
+    """
+    ensure_demo_cache()
+    # Get current query state
+    q_res = query(bbox=bbox, date_from=date_from, date_to=date_to, filter_flares=True)
+    q_data = json.loads(q_res.body.decode("utf-8"))
+
+    report_data = q_data.get("report", {})
+    tp_features = q_data.get("thermopoints", {}).get("features", [])
+
+    spread_data = build_fire_spread_forecast(
+        hotspots=tp_features,
+        wind_speed_kmh=wind_speed,
+        wind_azimuth_deg=wind_deg
+    )
+
+    sitrep = generate_emercom_sitrep(
+        report_data=report_data,
+        query_params={"bbox": bbox, "date_from": date_from, "date_to": date_to},
+        spread_data=spread_data
+    )
+
+    return JSONResponse(sitrep)
+
+
 @app.get("/export/geojson")
 def export_geojson(layer: str = Query("contours", description="Layer to export: 'contours' or 'thermopoints'")):
     """
@@ -209,7 +341,6 @@ def export_geojson(layer: str = Query("contours", description="Layer to export: 
     filename = f"{layer}.geojson"
     path = os.path.join(CACHE_DIR, filename)
     if not os.path.exists(path):
-        # Fallback to contours
         path = os.path.join(CACHE_DIR, "contours.geojson")
         filename = "contours.geojson"
         if not os.path.exists(path):
@@ -227,8 +358,6 @@ def export_geojson(layer: str = Query("contours", description="Layer to export: 
 def export_shapefile(layer: str = Query("contours", description="Layer to export: 'contours' or 'thermopoints'")):
     """
     Downloadable zipped ESRI Shapefile (or GeoJSON fallback if geopandas/fiona not available).
-    If geopandas is available, generates native shapefile zip.
-    If not, bundles GeoJSON with ESRI .prj and README in a clean zip package.
     """
     ensure_demo_cache()
     geojson_path = os.path.join(CACHE_DIR, f"{layer}.geojson")
@@ -239,7 +368,6 @@ def export_shapefile(layer: str = Query("contours", description="Layer to export
     if not os.path.exists(geojson_path):
         raise HTTPException(404, "Export data not ready")
 
-    # Check if geopandas is available for ESRI Shapefile export
     has_geopandas = False
     try:
         import geopandas as gpd
@@ -310,7 +438,7 @@ async def upload_mask(file: UploadFile = File(...), gsd: float = Query(20.0, des
 if __name__ == "__main__":
     import uvicorn
     print("=" * 60)
-    print("Запуск Информационно-аналитического веб-сервиса...")
+    print("Запуск Информационно-аналитического веб-сервиса (Яндекс.Карты + СППР)...")
     print("Карта и Web UI доступны по адресу: http://localhost:8000")
     print("Интерактивная документация Swagger: http://localhost:8000/docs")
     print("=" * 60)
