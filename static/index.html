@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Геопортал космического мониторинга и прогнозирования природных пожаров (Яндекс.Карты)</title>
+  <title>Геопортал космического мониторинга и прогнозирования природных пожаров</title>
   
   <!-- Yandex Maps JS API 2.1 -->
   <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
@@ -14,28 +14,142 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg-canvas: #0b0f17;
-      --bg-navbar: #111722;
-      --bg-sidebar: #131a26;
-      --bg-card: #182232;
-      --bg-input: #0e141f;
-      --border-subtle: #202b3d;
-      --border-active: #3b82f6;
-      --accent-blue: #2563eb;
-      --accent-blue-hover: #1d4ed8;
+    /* ==========================================================================
+       THEME 1: INSTITUTIONAL LIGHT (ArcGIS / ИСДМ-Рослесхоз / Kosmosnimki)
+       Clean, authoritative, state-level GIS aesthetic without "AI" neon dark vibes
+       ========================================================================== */
+    :root, [data-theme="light"] {
+      --bg-canvas: #f1f5f9;
+      --bg-navbar: #ffffff;
+      --bg-sidebar: #ffffff;
+      --bg-card: #f8fafc;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-active: #0284c7;
+      --border-input: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+      --section-title: #0f172a;
+      --section-accent: #0284c7;
+      
+      --btn-primary-bg: #0f172a;
+      --btn-primary-hover: #1e293b;
+      --btn-primary-text: #ffffff;
+      
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-border: #cbd5e1;
+      --btn-secondary-text: #1e293b;
+      --btn-secondary-hover: #f1f5f9;
+      
+      --btn-emercom-bg: #fef2f2;
+      --btn-emercom-border: #fecaca;
+      --btn-emercom-text: #991b1b;
+      --btn-emercom-hover: #fee2e2;
+
+      --btn-forecast-bg: #f0f9ff;
+      --btn-forecast-border: #bae6fd;
+      --btn-forecast-text: #0369a1;
+      --btn-forecast-hover: #e0f2fe;
+
+      --preset-bg: #f1f5f9;
+      --preset-border: #e2e8f0;
+      --preset-text: #475569;
+      --preset-hover-bg: #e2e8f0;
+      --preset-hover-text: #0f172a;
+
+      --kpi-val-color: #0f172a;
+      --stat-box-bg: #f8fafc;
+      --stat-val-color: #0f172a;
+      --legend-bg: #ffffff;
+      --legend-text: #0f172a;
+      --legend-shadow: 0 4px 16px rgba(0,0,0,0.1);
+
+      --modal-bg: #ffffff;
+      --modal-text: #0f172a;
+      --modal-border: #e2e8f0;
+      --sitrep-bg: #f8fafc;
+      --sitrep-border: #e2e8f0;
+      --sitrep-th: #f1f5f9;
+      --sitrep-td: #ffffff;
+
+      --status-bg: #ecfdf5;
+      --status-border: #a7f3d0;
+      --status-text: #065f46;
+      --status-dot: #10b981;
+
       --sev1-color: #ca8a04;
       --sev2-color: #ea580c;
       --sev3-color: #dc2626;
-      --forecast-3h: #dc2626;
-      --forecast-6h: #ea580c;
-      --forecast-12h: #ca8a04;
-      --text-main: #f1f5f9;
+    }
+
+    /* ==========================================================================
+       THEME 2: NEUTRAL CHARCOAL / SLATE (QGIS / Blender / Engineering Desktop)
+       True neutral slate gray without oversaturated neon-blue glowing accents
+       ========================================================================== */
+    [data-theme="dark"] {
+      --bg-canvas: #13171f;
+      --bg-navbar: #1a202c;
+      --bg-sidebar: #1d2330;
+      --bg-card: #181d28;
+      --bg-input: #141821;
+      --border-subtle: #2d3748;
+      --border-active: #3b82f6;
+      --border-input: #374151;
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
+      --section-title: #f1f5f9;
+      --section-accent: #38bdf8;
+      
+      --btn-primary-bg: #2563eb;
+      --btn-primary-hover: #1d4ed8;
+      --btn-primary-text: #ffffff;
+      
+      --btn-secondary-bg: #222938;
+      --btn-secondary-border: #374151;
+      --btn-secondary-text: #e2e8f0;
+      --btn-secondary-hover: #2d3546;
+
+      --btn-emercom-bg: rgba(220, 38, 38, 0.15);
+      --btn-emercom-border: rgba(220, 38, 38, 0.4);
+      --btn-emercom-text: #fca5a5;
+      --btn-emercom-hover: rgba(220, 38, 38, 0.25);
+
+      --btn-forecast-bg: rgba(2, 132, 199, 0.15);
+      --btn-forecast-border: rgba(2, 132, 199, 0.4);
+      --btn-forecast-text: #7dd3fc;
+      --btn-forecast-hover: rgba(2, 132, 199, 0.25);
+
+      --preset-bg: #232a38;
+      --preset-border: #2d3748;
+      --preset-text: #94a3b8;
+      --preset-hover-bg: #2d3748;
+      --preset-hover-text: #f8fafc;
+
+      --kpi-val-color: #ffffff;
+      --stat-box-bg: #181d28;
+      --stat-val-color: #ffffff;
+      --legend-bg: #1a202c;
+      --legend-text: #f8fafc;
+      --legend-shadow: 0 4px 16px rgba(0,0,0,0.4);
+
+      --modal-bg: #1a202c;
+      --modal-text: #f8fafc;
+      --modal-border: #2d3748;
+      --sitrep-bg: #141821;
+      --sitrep-border: #2d3748;
+      --sitrep-th: #1d2330;
+      --sitrep-td: #181d28;
+
+      --status-bg: rgba(16, 185, 129, 0.1);
+      --status-border: rgba(16, 185, 129, 0.3);
+      --status-text: #34d399;
+      --status-dot: #10b981;
+
+      --sev1-color: #ca8a04;
+      --sev2-color: #ea580c;
+      --sev3-color: #dc2626;
     }
 
     * {
@@ -51,6 +165,7 @@
       overflow: hidden;
       background-color: var(--bg-canvas);
       color: var(--text-main);
+      transition: background-color 0.2s, color 0.2s;
     }
 
     .app-container {
@@ -62,39 +177,40 @@
 
     /* Top Institutional Header */
     .navbar {
-      height: 54px;
+      height: 52px;
       background: var(--bg-navbar);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
+      padding: 0 16px;
       z-index: 1000;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .nav-emblem {
-      width: 32px;
-      height: 32px;
-      background: #182438;
-      border: 1px solid #2b3b55;
+      width: 30px;
+      height: 30px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #60a5fa;
+      color: var(--section-accent);
     }
 
     .nav-title {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.02em;
-      color: #fff;
+      letter-spacing: 0.01em;
+      color: var(--text-main);
       text-transform: uppercase;
     }
 
@@ -103,7 +219,7 @@
       color: #fff;
       font-size: 10px;
       font-weight: 700;
-      padding: 2px 6px;
+      padding: 1px 6px;
       border-radius: 3px;
       letter-spacing: 0.04em;
       margin-left: 6px;
@@ -128,13 +244,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
+      background: var(--status-bg);
+      border: 1px solid var(--status-border);
+      color: var(--status-text);
       font-size: 11px;
       font-weight: 600;
-      letter-spacing: 0.03em;
-      padding: 4px 9px;
+      letter-spacing: 0.02em;
+      padding: 4px 8px;
       border-radius: 3px;
     }
 
@@ -142,70 +258,69 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background-color: var(--success);
+      background-color: var(--status-dot);
     }
 
     /* Buttons */
     .btn {
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: 4px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background-color 0.15s, border-color 0.15s;
+      transition: background-color 0.15s, border-color 0.15s, color 0.15s;
       border: 1px solid transparent;
       outline: none;
       text-decoration: none;
+      user-select: none;
     }
 
     .btn-primary {
-      background: var(--accent-blue);
-      border-color: #1d4ed8;
-      color: #fff;
+      background: var(--btn-primary-bg);
+      border-color: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      font-weight: 600;
     }
 
     .btn-primary:hover {
-      background: var(--accent-blue-hover);
+      background: var(--btn-primary-hover);
+      border-color: var(--btn-primary-hover);
     }
 
     .btn-secondary {
-      background: #182232;
-      border-color: var(--border-subtle);
-      color: #cbd5e1;
+      background: var(--btn-secondary-bg);
+      border-color: var(--btn-secondary-border);
+      color: var(--btn-secondary-text);
     }
 
     .btn-secondary:hover {
-      background: #202c40;
-      border-color: #334155;
-      color: #fff;
+      background: var(--btn-secondary-hover);
+      border-color: var(--border-active);
     }
 
     .btn-emercom {
-      background: rgba(220, 38, 38, 0.15);
-      border: 1px solid rgba(220, 38, 38, 0.5);
-      color: #fca5a5;
+      background: var(--btn-emercom-bg);
+      border-color: var(--btn-emercom-border);
+      color: var(--btn-emercom-text);
       font-weight: 600;
     }
 
     .btn-emercom:hover {
-      background: rgba(220, 38, 38, 0.25);
-      color: #fff;
-      border-color: #ef4444;
+      background: var(--btn-emercom-hover);
     }
 
     .btn-forecast {
-      background: rgba(37, 99, 235, 0.2);
-      border: 1px solid rgba(59, 130, 246, 0.5);
-      color: #93c5fd;
+      background: var(--btn-forecast-bg);
+      border-color: var(--btn-forecast-border);
+      color: var(--btn-forecast-text);
       font-weight: 600;
     }
 
     .btn-forecast:hover {
-      background: rgba(37, 99, 235, 0.35);
-      color: #fff;
+      background: var(--btn-forecast-hover);
     }
 
     /* Workspace */
@@ -213,14 +328,14 @@
       display: flex;
       flex: 1;
       position: relative;
-      height: calc(100vh - 54px);
+      height: calc(100vh - 52px);
       overflow: hidden;
     }
 
     /* Sidebar */
     .sidebar {
-      width: 390px;
-      min-width: 390px;
+      width: 380px;
+      min-width: 380px;
       background: var(--bg-sidebar);
       border-right: 1px solid var(--border-subtle);
       display: flex;
@@ -230,7 +345,7 @@
     }
 
     .sidebar-section {
-      padding: 13px 16px;
+      padding: 13px 15px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
@@ -238,15 +353,27 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .section-title {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #93c5fd;
+      letter-spacing: 0.04em;
+      color: var(--section-title);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 12px;
+      background: var(--section-accent);
+      border-radius: 1px;
     }
 
     /* Form Controls */
@@ -261,16 +388,16 @@
       color: var(--text-muted);
       margin-bottom: 3px;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
     }
 
     .form-input {
       width: 100%;
       padding: 6px 9px;
       background: var(--bg-input);
-      border: 1px solid var(--border-subtle);
+      border: 1px solid var(--border-input);
       border-radius: 3px;
-      color: #f8fafc;
+      color: var(--text-main);
       font-size: 11.5px;
       font-family: 'JetBrains Mono', monospace;
       outline: none;
@@ -298,18 +425,18 @@
     .preset-pill {
       font-size: 10.5px;
       padding: 2px 6px;
-      background: #17202e;
-      border: 1px solid var(--border-subtle);
+      background: var(--preset-bg);
+      border: 1px solid var(--preset-border);
       border-radius: 3px;
-      color: var(--text-muted);
+      color: var(--preset-text);
       cursor: pointer;
       transition: all 0.15s;
     }
 
     .preset-pill:hover {
-      background: #202b3d;
-      border-color: #3b82f6;
-      color: #93c5fd;
+      background: var(--preset-hover-bg);
+      border-color: var(--border-active);
+      color: var(--preset-hover-text);
     }
 
     .checkbox-row {
@@ -318,14 +445,14 @@
       gap: 7px;
       margin: 8px 0;
       font-size: 11.5px;
-      color: #cbd5e1;
+      color: var(--text-muted);
       cursor: pointer;
       user-select: none;
     }
 
     .checkbox-row input[type="checkbox"] {
       cursor: pointer;
-      accent-color: var(--accent-blue);
+      accent-color: var(--section-accent);
       width: 14px;
       height: 14px;
     }
@@ -343,7 +470,7 @@
       font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       color: var(--text-muted);
       margin-bottom: 2px;
     }
@@ -351,7 +478,7 @@
     .kpi-value {
       font-size: 20px;
       font-weight: 700;
-      color: #fff;
+      color: var(--kpi-val-color);
       font-family: 'JetBrains Mono', monospace;
     }
 
@@ -367,7 +494,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #151d2a;
+      background: var(--bg-input);
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
       padding: 6px 9px;
@@ -389,6 +516,7 @@
     .sev-name {
       font-size: 11.5px;
       font-weight: 600;
+      color: var(--text-main);
     }
 
     .sev-stat {
@@ -399,6 +527,7 @@
       font-size: 11.5px;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
     }
 
     .sev-pct {
@@ -408,7 +537,7 @@
 
     .progress-bar-bg {
       height: 5px;
-      background: #0f1520;
+      background: var(--preset-bg);
       border-radius: 3px;
       overflow: hidden;
       display: flex;
@@ -428,7 +557,7 @@
     }
 
     .stat-box {
-      background: #151d2a;
+      background: var(--stat-box-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
       padding: 7px;
@@ -442,16 +571,16 @@
     }
 
     .stat-val {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 700;
-      color: #fff;
+      color: var(--stat-val-color);
       font-family: 'JetBrains Mono', monospace;
       margin-top: 1px;
     }
 
     /* Threat Alerts Stack */
     .threat-card {
-      background: #182232;
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-left: 3px solid #dc2626;
       border-radius: 3px;
@@ -469,7 +598,7 @@
 
     .threat-title {
       font-weight: 600;
-      color: #f1f5f9;
+      color: var(--text-main);
     }
 
     .threat-badge {
@@ -494,18 +623,18 @@
     }
 
     .btn-export {
-      background: #151e2b;
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      color: #cbd5e1;
+      color: var(--text-muted);
       justify-content: flex-start;
       padding: 6px 9px;
       font-size: 11.5px;
     }
 
     .btn-export:hover {
-      background: #1c2738;
-      border-color: #3b82f6;
-      color: #fff;
+      background: var(--preset-hover-bg);
+      border-color: var(--border-active);
+      color: var(--text-main);
     }
 
     /* Map Viewport */
@@ -518,7 +647,7 @@
     #yandex-map {
       width: 100%;
       height: 100%;
-      background-color: #0b0f17;
+      background-color: var(--bg-canvas);
     }
 
     /* Floating Strict Legend */
@@ -526,23 +655,23 @@
       position: absolute;
       bottom: 24px;
       right: 18px;
-      background: rgba(17, 23, 34, 0.94);
-      backdrop-filter: blur(8px);
+      background: var(--legend-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
       padding: 10px 14px;
       z-index: 800;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      box-shadow: var(--legend-shadow);
       font-size: 11px;
       pointer-events: auto;
       max-width: 250px;
+      color: var(--legend-text);
     }
 
     .legend-title {
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       color: var(--text-muted);
       margin-bottom: 6px;
     }
@@ -552,7 +681,7 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 4px;
-      color: #cbd5e1;
+      color: var(--text-main);
     }
 
     .legend-swatch {
@@ -573,30 +702,32 @@
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.6);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 2000;
+      backdrop-filter: blur(2px);
     }
 
     .modal-box {
-      background: #141b27;
-      border: 1px solid var(--border-subtle);
+      background: var(--modal-bg);
+      border: 1px solid var(--modal-border);
       border-radius: 4px;
       width: 680px;
       max-width: 92vw;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+      color: var(--modal-text);
     }
 
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--modal-border);
       padding: 14px 18px;
     }
 
@@ -604,8 +735,8 @@
       font-size: 13px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
-      color: #fff;
+      letter-spacing: 0.02em;
+      color: var(--text-main);
     }
 
     .modal-close {
@@ -616,18 +747,18 @@
       cursor: pointer;
     }
 
-    .modal-close:hover { color: #fff; }
+    .modal-close:hover { color: var(--text-main); }
 
     .modal-body {
       padding: 18px;
       overflow-y: auto;
       font-size: 12px;
       line-height: 1.6;
-      color: #cbd5e1;
+      color: var(--text-main);
     }
 
     .modal-footer {
-      border-top: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--modal-border);
       padding: 12px 18px;
       display: flex;
       justify-content: flex-end;
@@ -636,8 +767,8 @@
 
     /* Official SitRep Document Style */
     .sitrep-doc {
-      background: #0f1522;
-      border: 1px solid var(--border-subtle);
+      background: var(--sitrep-bg);
+      border: 1px solid var(--sitrep-border);
       padding: 18px;
       border-radius: 3px;
       font-family: 'Inter', sans-serif;
@@ -645,22 +776,22 @@
 
     .sitrep-badge-top {
       text-align: center;
-      border-bottom: 1px solid #243147;
+      border-bottom: 1px solid var(--border-subtle);
       padding-bottom: 10px;
       margin-bottom: 14px;
     }
 
     .sitrep-h1 {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
-      letter-spacing: 0.06em;
-      color: #f8fafc;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
       text-transform: uppercase;
     }
 
     .sitrep-h2 {
       font-size: 11px;
-      color: #93c5fd;
+      color: var(--section-accent);
       font-weight: 600;
       margin-top: 3px;
     }
@@ -678,24 +809,29 @@
     }
 
     .sitrep-table th {
-      background: #172233;
-      color: #cbd5e1;
+      background: var(--sitrep-th);
+      color: var(--text-main);
       text-align: left;
       font-weight: 600;
     }
 
+    .sitrep-table td {
+      background: var(--sitrep-td);
+      color: var(--text-main);
+    }
+
     .sitrep-highlight {
-      color: #ef4444;
+      color: #dc2626;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .dropzone {
-      border: 1.5px dashed var(--border-subtle);
+      border: 1.5px dashed var(--border-input);
       border-radius: 4px;
       padding: 24px;
       text-align: center;
-      background: #0f1520;
+      background: var(--bg-card);
       cursor: pointer;
     }
 
@@ -711,7 +847,7 @@
   <header class="navbar">
     <div class="nav-brand">
       <div class="nav-emblem">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
           <path d="M2 12h20"></path>
@@ -719,16 +855,21 @@
       </div>
       <div>
         <div class="nav-title">
-          Геопортал космического мониторинга и прогнозирования природных пожаров
+          Геопортал мониторинга и прогнозирования природных пожаров
           <span class="nav-badge-yandex">ЯНДЕКС.КАРТЫ</span>
         </div>
-        <div class="nav-subtitle">Нижнее Поволжье и Подонье &bull; Интеллектуальный комплекс СППР (Ротермел / Гюйгенс / 1-ЧС)</div>
+        <div class="nav-subtitle">Нижнее Поволжье и Подонье &bull; Комплекс СППР (Ротермел / Гюйгенс / 1-ЧС)</div>
       </div>
     </div>
 
     <div class="nav-actions">
+      <!-- Theme Switcher -->
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="themeToggleBtn" title="Переключить цветовую тему">
+        <span>☀️ Светлая ГИС</span>
+      </button>
+
       <button class="btn btn-emercom" onclick="openSitrepModal()">
-        <span>📋</span> Сводка 1-ЧС МЧС
+        <span>Сводка 1-ЧС МЧС</span>
       </button>
       <button class="btn btn-secondary" onclick="openUploadModal()">
         <span>Векторизация GeoTIFF</span>
@@ -737,7 +878,7 @@
         <span>Границы AOI</span>
       </button>
       <a href="/leaflet" class="btn btn-secondary" title="Резервный режим на OpenStreetMap">
-        <span>🌐 Leaflet</span>
+        <span>Leaflet</span>
       </a>
       <div class="status-badge">
         <div class="status-dot"></div>
@@ -786,7 +927,7 @@
           <span>Фильтровать техногенные факелы (скрыть ложные тревоги)</span>
         </label>
 
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 2px;" onclick="loadData()">
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 3px;" onclick="loadData()">
           <span id="querySpinner" style="display:none;">⏳</span>
           <span>Запросить данные мониторинга</span>
         </button>
@@ -796,13 +937,13 @@
       <div class="sidebar-section">
         <div class="section-header">
           <div class="section-title">02. Оперативная аналитическая сводка</div>
-          <span id="reportStatus" style="font-size: 10px; color: var(--accent-blue); font-weight: 500;">Данные актуальны</span>
+          <span id="reportStatus" style="font-size: 10px; color: var(--section-accent); font-weight: 600;">Актуально</span>
         </div>
 
         <!-- KPI: Total Burn Area -->
         <div class="kpi-card">
           <div class="kpi-title">Суммарная площадь выгорания</div>
-          <div class="kpi-value" id="kpiTotalHa">0.00 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">га</span></div>
+          <div class="kpi-value" id="kpiTotalHa">0.00 <span style="font-size: 13px; font-weight: 400; color: var(--text-muted);">га</span></div>
           <div class="kpi-sub" id="kpiTotalKm">0.00 км² (GSD: 20м = 0.04 га/пикс)</div>
         </div>
 
@@ -811,7 +952,7 @@
           <div class="sev-info">
             <div class="sev-indicator" style="background-color: var(--sev1-color);"></div>
             <div>
-              <div class="sev-name" style="color: #fef08a;">Слабая степень (Класс 1)</div>
+              <div class="sev-name">Слабая степень (Класс 1)</div>
               <div class="sev-pct">Поверхностный пал растительности</div>
             </div>
           </div>
@@ -825,7 +966,7 @@
           <div class="sev-info">
             <div class="sev-indicator" style="background-color: var(--sev2-color);"></div>
             <div>
-              <div class="sev-name" style="color: #fed7aa;">Средняя степень (Класс 2)</div>
+              <div class="sev-name">Средняя степень (Класс 2)</div>
               <div class="sev-pct">Степной прогар травяного яруса</div>
             </div>
           </div>
@@ -839,7 +980,7 @@
           <div class="sev-info">
             <div class="sev-indicator" style="background-color: var(--sev3-color);"></div>
             <div>
-              <div class="sev-name" style="color: #fca5a5;">Сильная степень (Класс 3)</div>
+              <div class="sev-name">Сильная степень (Класс 3)</div>
               <div class="sev-pct">Полное сгорание кустарников и леса</div>
             </div>
           </div>
@@ -868,7 +1009,7 @@
           </div>
           <div class="stat-box" style="grid-column: span 2;">
             <div class="stat-label">Предварительный эко-ущерб (Минприроды)</div>
-            <div class="stat-val" id="statDamageRub" style="color: #f87171; font-size: 14px;">0 ₽</div>
+            <div class="stat-val" id="statDamageRub" style="color: #dc2626; font-size: 13.5px;">0 ₽</div>
           </div>
         </div>
       </div>
@@ -877,16 +1018,16 @@
       <div class="sidebar-section">
         <div class="section-header">
           <div class="section-title">03. Моделирование динамики фронта</div>
-          <span style="font-size: 10px; color: #60a5fa; font-weight: 600;">Ротермел / Гюйгенс</span>
+          <span style="font-size: 10px; color: var(--section-accent); font-weight: 600;">Ротермел / Гюйгенс</span>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Ветер (км/ч): <span id="windSpeedDisplay" style="color:#93c5fd;">24</span></label>
+            <label class="form-label">Ветер (км/ч): <span id="windSpeedDisplay" style="color:var(--text-main); font-weight:700;">24</span></label>
             <input type="range" id="windSpeedSlider" min="5" max="55" value="24" style="width:100%; cursor:pointer;" oninput="updateWindSpeed(this.value)">
           </div>
           <div class="form-group">
-            <label class="form-label">Азимут сноса: <span id="windAzDisplay" style="color:#93c5fd;">240° (ЮЗ)</span></label>
+            <label class="form-label">Азимут сноса: <span id="windAzDisplay" style="color:var(--text-main); font-weight:700;">240°</span></label>
             <select id="windAzSelect" class="form-input" style="padding: 4px 6px;" onchange="updateWindAzimuth(this.value)">
               <option value="240" selected>Юго-Запад (240°, Суховей)</option>
               <option value="180">Юг (180°)</option>
@@ -901,17 +1042,17 @@
         </div>
 
         <button class="btn btn-forecast" style="width: 100%; justify-content: center; margin-top: 2px;" onclick="calculateSpreadForecast()">
-          <span>🚀 Рассчитать динамику фронта (+3ч / +6ч / +12ч)</span>
+          <span>Рассчитать динамику фронта (+3ч / +6ч / +12ч)</span>
         </button>
 
         <!-- Threat Exposure Alerts -->
-        <div style="margin-top: 10px;">
+        <div style="margin-top: 9px;">
           <div class="form-label" style="display: flex; justify-content: space-between;">
             <span>Угрозы объектам и инфраструктуре:</span>
-            <span id="threatsCountBadge" style="color: #ef4444; font-weight: 700;">0</span>
+            <span id="threatsCountBadge" style="color: #dc2626; font-weight: 700;">0</span>
           </div>
-          <div id="threatsContainer" style="max-height: 140px; overflow-y: auto; margin-top: 4px;">
-            <div style="font-size: 11px; color: var(--text-dim); text-align: center; padding: 8px 0;">
+          <div id="threatsContainer" style="max-height: 130px; overflow-y: auto; margin-top: 4px;">
+            <div style="font-size: 11px; color: var(--text-dim); text-align: center; padding: 7px 0;">
               Нажмите «Рассчитать динамику», чтобы оценить подступ фронта
             </div>
           </div>
@@ -923,7 +1064,7 @@
         <div class="section-title" style="margin-bottom: 8px;">04. Экспорт данных и отчетности</div>
         <div class="export-stack">
           <button class="btn btn-emercom" onclick="openSitrepModal()">
-            <span>📋 Сформировать донесение МЧС (форма 1-ЧС)</span>
+            <span>Сформировать донесение МЧС (форма 1-ЧС)</span>
           </button>
           <button class="btn btn-export" onclick="exportData('geojson', 'contours')">
             <span>Выгрузить полигоны гарей (GeoJSON)</span>
@@ -974,7 +1115,7 @@
           <span>Прогноз фронта +6ч (Опасность)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background: transparent; border: 1.5px dashed #38bdf8;"></div>
+          <div class="legend-swatch" style="background: transparent; border: 1.5px dashed #0284c7;"></div>
           <span>Граница зоны мониторинга (AOI)</span>
         </div>
       </div>
@@ -986,7 +1127,7 @@
 <div id="sitrepModal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">Формализованное оперативное донесение МЧС России (Форма 1-ЧС)</div>
+      <div class="modal-title">Оперативное донесение МЧС России (Форма 1-ЧС)</div>
       <button class="modal-close" onclick="closeSitrepModal()">&times;</button>
     </div>
     <div class="modal-body">
@@ -995,8 +1136,8 @@
           <div class="sitrep-h1">МЧС РОССИИ &bull; ГЛАВНОЕ УПРАВЛЕНИЕ ПО ЮЖНОМУ ФЕДЕРАЛЬНОМУ ОКРУГУ</div>
           <div class="sitrep-h2">ОПЕРАТИВНАЯ СВОДКА ПО ПРИРОДНЫМ ПОЖАРАМ (ФОРМА 1-ЧС)</div>
           <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-            Документ <span id="sitrepDocNum" style="color:#fff; font-family:'JetBrains Mono',monospace;">ЧС-2026-042</span> &bull; 
-            Время фиксации: <span id="sitrepDocTime" style="color:#fff;">19.09.2026 18:30 МСК</span>
+            Документ <span id="sitrepDocNum" style="font-weight:700; font-family:'JetBrains Mono',monospace;">ЧС-2026-042</span> &bull; 
+            Время фиксации: <span id="sitrepDocTime" style="font-weight:600;">19.09.2026 18:30 МСК</span>
           </div>
         </div>
 
@@ -1047,8 +1188,8 @@
           <tr>
             <td><strong>Экологический ущерб (Минприроды)</strong></td>
             <td>
-              <span id="sitrepDamageTotal" style="color:#ef4444; font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace;">0 ₽</span><br>
-              <span style="font-size:10px; color:var(--text-dim);">Расчет по ПП РФ №1730 с учетом выбросов CO2</span>
+              <span id="sitrepDamageTotal" style="color:#dc2626; font-size:13.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">0 ₽</span><br>
+              <span style="font-size:10px; color:var(--text-dim);">Методика ПП РФ №1730 с учетом выбросов CO2</span>
             </td>
           </tr>
           <tr>
@@ -1062,7 +1203,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="window.print()">
-        <span>🖨️ Печать документа</span>
+        <span>Печать документа</span>
       </button>
       <button class="btn btn-primary" onclick="closeSitrepModal()">
         <span>Закрыть</span>
@@ -1081,11 +1222,11 @@
     <div class="modal-body">
       <div class="dropzone" onclick="document.getElementById('maskFileInput').click()">
         <input type="file" id="maskFileInput" accept=".tif,.tiff" style="display:none;" onchange="handleFileSelect(event)">
-        <div style="font-size: 28px; margin-bottom: 8px;">🛰️</div>
-        <div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">Выберите файл GeoTIFF маски</div>
+        <div style="font-size: 26px; margin-bottom: 6px;">🛰️</div>
+        <div style="font-weight: 600; font-size: 12.5px; margin-bottom: 3px;">Выберите файл GeoTIFF маски</div>
         <div style="font-size: 11px; color: var(--text-dim);" id="fileSelectName">Поддерживаются целочисленные маски классов 0, 1, 2, 3</div>
       </div>
-      <div style="margin-top: 14px;">
+      <div style="margin-top: 12px;">
         <label class="form-label">Пространственное разрешение (GSD, м)</label>
         <input type="number" id="maskGsd" class="form-input" value="20.0" step="1.0">
       </div>
@@ -1108,6 +1249,29 @@
   let lastQueryData = null;
   let currentWindSpeed = 24.0;
   let currentWindAzimuth = 240.0;
+
+  // Theme Management: Light Institutional by default
+  function initTheme() {
+    const saved = localStorage.getItem('gis_theme') || 'light';
+    setTheme(saved);
+  }
+
+  function toggleTheme() {
+    const curr = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = curr === 'light' ? 'dark' : 'light';
+    setTheme(next);
+  }
+
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('gis_theme', t);
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+      btn.innerHTML = t === 'light' ? '<span>🌙 Темный графит</span>' : '<span>☀️ Светлая ГИС</span>';
+    }
+  }
+
+  initTheme();
 
   const PRESETS = {
     'aoi': '38.3,44.6,48.0,52.7',
@@ -1181,9 +1345,9 @@
             const yCoords = toYandexCoords(feat.geometry.coordinates);
             const poly = new ymaps.Polygon(yCoords, {
               hintContent: `<strong>${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
-              balloonContentHeader: `<span style="font-weight:700; color:#1e3a8a; font-size:13px;">🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</span>`,
+              balloonContentHeader: `<span style="font-weight:700; color:#0f172a; font-size:13px;">🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</span>`,
               balloonContentBody: `
-                <div style="font-size:12px; line-height:1.6; color:#1f2937; padding:4px 0;">
+                <div style="font-size:12px; line-height:1.6; color:#334155; padding:4px 0;">
                   <div><strong>Назначение:</strong> ${feat.properties.role || 'Оперативный спутниковый контроль'}</div>
                   <div><strong>Охват площади:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
                   <div><strong>Субъекты РФ:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
@@ -1191,10 +1355,10 @@
                 </div>
               `
             }, {
-              strokeColor: '#38bdf8',
+              strokeColor: '#0284c7',
               strokeWidth: 2,
               strokePattern: [6, 4],
-              fillColor: '#38bdf8',
+              fillColor: '#0284c7',
               fillOpacity: 0.05
             });
             aoiCollection.add(poly);
@@ -1301,7 +1465,7 @@
       const wfCount = tpList.filter(f => !f.properties.is_flare).length;
       const flareCount = tpList.filter(f => f.properties.is_flare).length;
       
-      document.getElementById('statTpCount').innerHTML = `${wfCount} <span style="font-size:11px; color:var(--text-dim);">(факелы: ${flareCount})</span>`;
+      document.getElementById('statTpCount').innerHTML = `${wfCount} <span style="font-size:10.5px; color:var(--text-dim);">(факелы: ${flareCount})</span>`;
 
       tpList.forEach(feat => {
         const coords = [feat.geometry.coordinates[1], feat.geometry.coordinates[0]];
@@ -1360,7 +1524,7 @@
       const totalHa = r.total_ha || r.total_burned_area_ha || 0;
       const totalKm2 = (totalHa / 100).toFixed(2);
       
-      document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size:14px; font-weight:400; color:var(--text-muted)">га</span>`;
+      document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size:13px; font-weight:400; color:var(--text-muted)">га</span>`;
       document.getElementById('kpiTotalKm').textContent = `${totalKm2} км² (GSD: 20м = 0.04 га/пикс)`;
 
       const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
@@ -1397,8 +1561,6 @@
 
   function updateWindAzimuth(val) {
     currentWindAzimuth = parseFloat(val);
-    const sel = document.getElementById('windAzSelect');
-    const txt = sel.options[sel.selectedIndex].text;
     document.getElementById('windAzDisplay').textContent = `${val}°`;
   }
 
@@ -1454,7 +1616,7 @@
     document.getElementById('threatsCountBadge').textContent = threats.length;
 
     if (threats.length === 0) {
-      tContainer.innerHTML = '<div style="font-size:11px; color:var(--success); text-align:center; padding:8px 0;">В опасном секторе населенных пунктов не обнаружено</div>';
+      tContainer.innerHTML = '<div style="font-size:11px; color:var(--text-dim); text-align:center; padding:7px 0;">В опасном секторе населенных пунктов не обнаружено</div>';
     } else {
       let html = '';
       threats.forEach(t => {
@@ -1471,7 +1633,6 @@
           </div>
         `;
 
-        // Add Placemark on map
         const mark = new ymaps.Placemark([t.lat, t.lon], {
           hintContent: `<strong>Угроза: ${t.asset_name}</strong><br>Подступ: ${t.eta_formatted}`,
           balloonContentHeader: `<span style="color:${t.badge_color}; font-weight:700;">⚠️ Угроза инфраструктуре: ${t.asset_name}</span>`,
