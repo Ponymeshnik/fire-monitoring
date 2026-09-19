@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Геопортал космического мониторинга и прогнозирования природных пожаров</title>
   
-  <!-- Yandex Maps JS API 2.1 -->
+  <!-- Leaflet 1.9.4 Open-Source GIS Engine (BSD-2-Clause, 0 ₽, Offline/ZSPD Ready) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Yandex Maps JS API 2.1 (Optional Commercial Engine for Public Portals) -->
   <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
   
   <!-- Google Fonts -->
@@ -121,51 +125,51 @@
       --btn-forecast-text: #7dd3fc;
       --btn-forecast-hover: rgba(2, 132, 199, 0.25);
 
-      --preset-bg: #232a38;
-      --preset-border: #2d3748;
+      --preset-bg: #1e293b;
+      --preset-border: #334155;
       --preset-text: #94a3b8;
-      --preset-hover-bg: #2d3748;
+      --preset-hover-bg: #334155;
       --preset-hover-text: #f8fafc;
 
-      --kpi-val-color: #ffffff;
-      --stat-box-bg: #181d28;
-      --stat-val-color: #ffffff;
+      --kpi-val-color: #f8fafc;
+      --stat-box-bg: #141821;
+      --stat-val-color: #f8fafc;
       --legend-bg: #1a202c;
-      --legend-text: #f8fafc;
-      --legend-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      --legend-text: #e2e8f0;
+      --legend-shadow: 0 4px 20px rgba(0,0,0,0.4);
 
       --modal-bg: #1a202c;
       --modal-text: #f8fafc;
       --modal-border: #2d3748;
       --sitrep-bg: #141821;
       --sitrep-border: #2d3748;
-      --sitrep-th: #1d2330;
-      --sitrep-td: #181d28;
+      --sitrep-th: #1e293b;
+      --sitrep-td: #141821;
 
-      --status-bg: rgba(16, 185, 129, 0.1);
-      --status-border: rgba(16, 185, 129, 0.3);
-      --status-text: #34d399;
+      --status-bg: rgba(16, 185, 129, 0.15);
+      --status-border: rgba(16, 185, 129, 0.35);
+      --status-text: #6ee7b7;
       --status-dot: #10b981;
 
-      --sev1-color: #ca8a04;
-      --sev2-color: #ea580c;
-      --sev3-color: #dc2626;
+      --sev1-color: #facc15;
+      --sev2-color: #fb923c;
+      --sev3-color: #f87171;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-canvas);
       color: var(--text-main);
-      transition: background-color 0.2s, color 0.2s;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      -webkit-font-smoothing: antialiased;
     }
 
     .app-container {
@@ -175,63 +179,56 @@
       width: 100vw;
     }
 
-    /* Top Institutional Header */
+    /* Institutional Header */
     .navbar {
       height: 52px;
-      background: var(--bg-navbar);
+      background-color: var(--bg-navbar);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
-      z-index: 1000;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
 
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .nav-emblem {
-      width: 30px;
-      height: 30px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
+      width: 32px;
+      height: 32px;
+      background: #0f172a;
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--section-accent);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    [data-theme="dark"] .nav-emblem {
+      background: #2563eb;
     }
 
     .nav-title {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 700;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.01em;
       color: var(--text-main);
-      text-transform: uppercase;
-    }
-
-    .nav-badge-yandex {
-      background: #dc2626;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 3px;
-      letter-spacing: 0.04em;
-      margin-left: 6px;
-      vertical-align: middle;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .nav-subtitle {
       font-size: 11px;
-      color: var(--text-muted);
+      color: var(--text-dim);
       font-weight: 400;
-      margin-top: 1px;
     }
 
     .nav-actions {
@@ -240,112 +237,178 @@
       gap: 8px;
     }
 
+    /* Engine Switcher */
+    .engine-switcher {
+      display: flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .btn-engine {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 3px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-engine:hover {
+      color: var(--text-main);
+      background: var(--preset-hover-bg);
+    }
+
+    .btn-engine.active {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .engine-tag {
+      font-size: 8px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: #10b981;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-badge-engine {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      letter-spacing: 0.04em;
+    }
+
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 3px 8px;
       background: var(--status-bg);
       border: 1px solid var(--status-border);
-      color: var(--status-text);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      padding: 4px 8px;
       border-radius: 3px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--status-text);
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .status-dot {
       width: 6px;
       height: 6px;
-      border-radius: 50%;
       background-color: var(--status-dot);
+      border-radius: 50%;
     }
 
     /* Buttons */
     .btn {
-      padding: 5px 11px;
-      border-radius: 4px;
-      font-size: 11.5px;
-      font-weight: 500;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+      padding: 5px 11px;
+      font-size: 11.5px;
+      font-weight: 500;
+      border-radius: 3px;
+      cursor: pointer;
       border: 1px solid transparent;
-      outline: none;
+      transition: all 0.15s ease;
       text-decoration: none;
-      user-select: none;
+      white-space: nowrap;
+      font-family: inherit;
     }
 
     .btn-primary {
-      background: var(--btn-primary-bg);
-      border-color: var(--btn-primary-bg);
+      background-color: var(--btn-primary-bg);
       color: var(--btn-primary-text);
       font-weight: 600;
     }
-
     .btn-primary:hover {
-      background: var(--btn-primary-hover);
-      border-color: var(--btn-primary-hover);
+      background-color: var(--btn-primary-hover);
     }
 
     .btn-secondary {
-      background: var(--btn-secondary-bg);
+      background-color: var(--btn-secondary-bg);
       border-color: var(--btn-secondary-border);
       color: var(--btn-secondary-text);
     }
-
     .btn-secondary:hover {
-      background: var(--btn-secondary-hover);
-      border-color: var(--border-active);
+      background-color: var(--btn-secondary-hover);
+      color: var(--text-main);
     }
 
     .btn-emercom {
-      background: var(--btn-emercom-bg);
+      background-color: var(--btn-emercom-bg);
       border-color: var(--btn-emercom-border);
       color: var(--btn-emercom-text);
       font-weight: 600;
     }
-
     .btn-emercom:hover {
-      background: var(--btn-emercom-hover);
+      background-color: var(--btn-emercom-hover);
     }
 
     .btn-forecast {
-      background: var(--btn-forecast-bg);
+      background-color: var(--btn-forecast-bg);
       border-color: var(--btn-forecast-border);
       color: var(--btn-forecast-text);
       font-weight: 600;
     }
-
     .btn-forecast:hover {
-      background: var(--btn-forecast-hover);
+      background-color: var(--btn-forecast-hover);
+    }
+
+    .btn-export {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 11px;
+      width: 100%;
+      justify-content: flex-start;
+      padding: 6px 10px;
+    }
+    .btn-export:hover {
+      background-color: var(--preset-hover-bg);
+      border-color: var(--border-active);
     }
 
     /* Workspace */
     .workspace {
       display: flex;
       flex: 1;
-      position: relative;
       height: calc(100vh - 52px);
-      overflow: hidden;
+      position: relative;
     }
 
     /* Sidebar */
     .sidebar {
-      width: 380px;
-      min-width: 380px;
-      background: var(--bg-sidebar);
+      width: 370px;
+      background-color: var(--bg-sidebar);
       border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      z-index: 500;
+      z-index: 10;
+      flex-shrink: 0;
     }
 
     .sidebar-section {
-      padding: 13px 15px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
@@ -450,53 +513,47 @@
       user-select: none;
     }
 
-    .checkbox-row input[type="checkbox"] {
+    .checkbox-row input {
       cursor: pointer;
-      accent-color: var(--section-accent);
-      width: 14px;
-      height: 14px;
     }
 
-    /* KPI Summary Cards */
+    /* KPI Summary Card */
     .kpi-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
       padding: 10px 12px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .kpi-title {
-      font-size: 10px;
-      font-weight: 600;
+      font-size: 10.5px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
       color: var(--text-muted);
-      margin-bottom: 2px;
+      font-weight: 600;
     }
 
     .kpi-value {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 700;
       color: var(--kpi-val-color);
       font-family: 'JetBrains Mono', monospace;
+      margin: 2px 0;
     }
 
     .kpi-sub {
-      font-size: 10.5px;
+      font-size: 11px;
       color: var(--text-dim);
-      margin-top: 2px;
-      font-family: 'JetBrains Mono', monospace;
     }
 
     /* Severity Breakdown */
     .sev-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg-input);
-      border: 1px solid var(--border-subtle);
-      border-radius: 3px;
       padding: 6px 9px;
       margin-bottom: 4px;
     }
@@ -603,38 +660,21 @@
 
     .threat-badge {
       font-size: 9.5px;
-      font-weight: 700;
       padding: 1px 5px;
       border-radius: 2px;
+      font-weight: 700;
     }
 
     .threat-body {
-      font-size: 10.5px;
       color: var(--text-muted);
+      font-size: 11px;
       line-height: 1.4;
     }
 
-    /* Export Buttons Stack */
     .export-stack {
       display: flex;
       flex-direction: column;
       gap: 5px;
-      margin-top: 4px;
-    }
-
-    .btn-export {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      justify-content: flex-start;
-      padding: 6px 9px;
-      font-size: 11.5px;
-    }
-
-    .btn-export:hover {
-      background: var(--preset-hover-bg);
-      border-color: var(--border-active);
-      color: var(--text-main);
     }
 
     /* Map Viewport */
@@ -642,158 +682,262 @@
       flex: 1;
       height: 100%;
       position: relative;
+      background: #0f172a;
     }
 
-    #yandex-map {
+    #leaflet-map, #yandex-map {
       width: 100%;
       height: 100%;
-      background-color: var(--bg-canvas);
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
-    /* Floating Strict Legend */
+    /* Leaflet Institutional Theme Overrides */
+    .leaflet-container {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      background: #0f172a;
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 4px !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important;
+      padding: 0 !important;
+      background: var(--bg-card) !important;
+      color: var(--text-main) !important;
+      border: 1px solid var(--border-subtle) !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 10px 12px !important;
+      line-height: 1.5 !important;
+      font-size: 12px !important;
+    }
+
+    .leaflet-popup-tip {
+      background: var(--bg-card) !important;
+    }
+
+    .leaflet-control-layers {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border-subtle) !important;
+      border-radius: 4px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+      color: var(--text-main) !important;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+    }
+
+    .leaflet-control-layers-expanded {
+      padding: 8px 12px !important;
+    }
+
+    .leaflet-control-zoom a {
+      background: var(--bg-card) !important;
+      color: var(--text-main) !important;
+      border-color: var(--border-subtle) !important;
+    }
+
+    .fire-marker-pulse {
+      width: 14px;
+      height: 14px;
+      background: #ef4444;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+      position: relative;
+    }
+
+    .fire-marker-pulse::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border: 2px solid #ef4444;
+      border-radius: 50%;
+      animation: pulseFire 2s infinite ease-out;
+      opacity: 0.8;
+    }
+
+    @keyframes pulseFire {
+      0% { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(2.3); opacity: 0; }
+    }
+
+    .flare-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: #fff7ed;
+      border: 2px solid #ea580c;
+      border-radius: 50%;
+      font-size: 11px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .threat-marker-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: #fef2f2;
+      border: 2px solid #dc2626;
+      border-radius: 50%;
+      font-size: 13px;
+      box-shadow: 0 2px 8px rgba(220,38,38,0.35);
+      animation: bounceAlert 2s infinite ease-in-out;
+    }
+
+    @keyframes bounceAlert {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* Floating Legend */
     .map-legend {
       position: absolute;
       bottom: 24px;
-      right: 18px;
+      right: 20px;
       background: var(--legend-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
       padding: 10px 14px;
-      z-index: 800;
+      z-index: 1000;
       box-shadow: var(--legend-shadow);
       font-size: 11px;
-      pointer-events: auto;
-      max-width: 250px;
       color: var(--legend-text);
+      max-width: 260px;
+      backdrop-filter: blur(8px);
     }
 
     .legend-title {
-      font-size: 10px;
       font-weight: 700;
+      margin-bottom: 7px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      margin-bottom: 6px;
+      font-size: 10px;
+      letter-spacing: 0.03em;
+      color: var(--text-dim);
     }
 
     .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 4px;
-      color: var(--text-main);
+      margin-bottom: 5px;
     }
 
     .legend-swatch {
       width: 14px;
-      height: 8px;
-      border-radius: 1px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
     }
 
     .legend-dot-fire {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #ef4444;
-      border: 1px solid #fff;
+      box-shadow: 0 0 6px #ef4444;
+      flex-shrink: 0;
     }
 
     /* Modals */
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 2000;
-      backdrop-filter: blur(2px);
     }
 
     .modal-box {
       background: var(--modal-bg);
       border: 1px solid var(--modal-border);
-      border-radius: 4px;
+      border-radius: 6px;
       width: 680px;
-      max-width: 92vw;
-      max-height: 90vh;
+      max-width: 90vw;
+      max-height: 85vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
       color: var(--modal-text);
     }
 
     .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--modal-border);
       padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .modal-title {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      color: var(--text-main);
     }
 
     .modal-close {
       background: none;
       border: none;
-      color: var(--text-muted);
       font-size: 18px;
+      color: var(--text-muted);
       cursor: pointer;
     }
 
-    .modal-close:hover { color: var(--text-main); }
-
     .modal-body {
-      padding: 18px;
+      padding: 16px 18px;
       overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.6;
-      color: var(--text-main);
+      flex: 1;
     }
 
     .modal-footer {
-      border-top: 1px solid var(--modal-border);
-      padding: 12px 18px;
+      padding: 10px 18px;
+      border-top: 1px solid var(--border-subtle);
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 8px;
+      background: var(--bg-card);
     }
 
-    /* Official SitRep Document Style */
+    /* Sitrep Official Document Styling */
     .sitrep-doc {
       background: var(--sitrep-bg);
       border: 1px solid var(--sitrep-border);
+      border-radius: 4px;
       padding: 18px;
-      border-radius: 3px;
-      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     .sitrep-badge-top {
       text-align: center;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 10px;
-      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border-subtle);
+      margin-bottom: 12px;
     }
 
     .sitrep-h1 {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--text-main);
-      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .sitrep-h2 {
-      font-size: 11px;
-      color: var(--section-accent);
+      font-size: 12px;
       font-weight: 600;
-      margin-top: 3px;
+      color: var(--text-muted);
     }
 
     .sitrep-table {
@@ -856,13 +1000,24 @@
       <div>
         <div class="nav-title">
           Геопортал мониторинга и прогнозирования природных пожаров
-          <span class="nav-badge-yandex">ЯНДЕКС.КАРТЫ</span>
+          <span class="nav-badge-engine" id="activeEngineBadge">OPEN-SOURCE ГИС (0 ₽)</span>
         </div>
         <div class="nav-subtitle">Нижнее Поволжье и Подонье &bull; Комплекс СППР (Ротермел / Гюйгенс / 1-ЧС)</div>
       </div>
     </div>
 
     <div class="nav-actions">
+      <!-- Engine Switcher: Open-Source First -->
+      <div class="engine-switcher">
+        <button class="btn-engine active" id="btnEngineLeaflet" onclick="switchEngine('leaflet')" title="Open-Source стек (0 ₽): Leaflet + ESRI Satellite + OSM. Полная автономность для защищенных контуров МЧС (ЗСПД)">
+          <span>🌐 Open-Source (0 ₽)</span>
+          <span class="engine-tag">ОСНОВНОЙ</span>
+        </button>
+        <button class="btn-engine" id="btnEngineYandex" onclick="switchEngine('yandex')" title="Коммерческий стек: Яндекс.Карты (Спутник / Гибрид) для публичных порталов">
+          <span>🗺️ Яндекс.Карты</span>
+        </button>
+      </div>
+
       <!-- Theme Switcher -->
       <button class="btn btn-secondary" onclick="toggleTheme()" id="themeToggleBtn" title="Переключить цветовую тему">
         <span>☀️ Светлая ГИС</span>
@@ -874,7 +1029,7 @@
       <button class="btn btn-secondary" onclick="openUploadModal()">
         <span>Векторизация GeoTIFF</span>
       </button>
-      <button class="btn btn-secondary" onclick="fitYandexAOI()">
+      <button class="btn btn-secondary" onclick="fitAOI()">
         <span>Границы AOI</span>
       </button>
       <div class="status-badge">
@@ -948,105 +1103,88 @@
         <div class="sev-card">
           <div class="sev-info">
             <div class="sev-indicator" style="background-color: var(--sev1-color);"></div>
-            <div>
-              <div class="sev-name">Слабая степень (Класс 1)</div>
-              <div class="sev-pct">Поверхностный пал растительности</div>
-            </div>
+            <span class="sev-name">Класс 1 (слабая)</span>
           </div>
           <div class="sev-stat">
             <div class="sev-area" id="sev1Ha">0.0 га</div>
-            <div class="sev-pct" id="sev1Pct">0.0%</div>
+            <div class="sev-pct" id="sev1Pct">0%</div>
           </div>
         </div>
 
         <div class="sev-card">
           <div class="sev-info">
             <div class="sev-indicator" style="background-color: var(--sev2-color);"></div>
-            <div>
-              <div class="sev-name">Средняя степень (Класс 2)</div>
-              <div class="sev-pct">Степной прогар травяного яруса</div>
-            </div>
+            <span class="sev-name">Класс 2 (средняя)</span>
           </div>
           <div class="sev-stat">
             <div class="sev-area" id="sev2Ha">0.0 га</div>
-            <div class="sev-pct" id="sev2Pct">0.0%</div>
+            <div class="sev-pct" id="sev2Pct">0%</div>
           </div>
         </div>
 
         <div class="sev-card">
           <div class="sev-info">
             <div class="sev-indicator" style="background-color: var(--sev3-color);"></div>
-            <div>
-              <div class="sev-name">Сильная степень (Класс 3)</div>
-              <div class="sev-pct">Полное сгорание кустарников и леса</div>
-            </div>
+            <span class="sev-name">Класс 3 (сильная)</span>
           </div>
           <div class="sev-stat">
             <div class="sev-area" id="sev3Ha">0.0 га</div>
-            <div class="sev-pct" id="sev3Pct">0.0%</div>
+            <div class="sev-pct" id="sev3Pct">0%</div>
           </div>
         </div>
 
-        <!-- Progress Bar -->
+        <!-- Progress Distribution Bar -->
         <div class="progress-bar-bg">
           <div id="progSev1" class="progress-seg-1" style="width: 33%;"></div>
           <div id="progSev2" class="progress-seg-2" style="width: 33%;"></div>
           <div id="progSev3" class="progress-seg-3" style="width: 34%;"></div>
         </div>
 
-        <!-- Operational Statistics -->
+        <!-- Operational Statistics Grid -->
         <div class="stats-grid">
           <div class="stat-box">
-            <div class="stat-label">Очаги горения (VIIRS)</div>
+            <div class="stat-label">Очагов горения</div>
             <div class="stat-val" id="statTpCount">0</div>
           </div>
           <div class="stat-box">
-            <div class="stat-label">Контуры гарей (S2)</div>
+            <div class="stat-label">Контуров гарей</div>
             <div class="stat-val" id="statContCount">0</div>
           </div>
           <div class="stat-box" style="grid-column: span 2;">
-            <div class="stat-label">Предварительный эко-ущерб (Минприроды)</div>
+            <div class="stat-label">Ущерб лесному фонду (Минприроды №1730)</div>
             <div class="stat-val" id="statDamageRub" style="color: #dc2626; font-size: 13.5px;">0 ₽</div>
           </div>
         </div>
       </div>
 
-      <!-- Section 3: Predictive Fire Spread & Threat Analysis -->
+      <!-- Section 3: Rothermel Fire Spread Simulation -->
       <div class="sidebar-section">
         <div class="section-header">
-          <div class="section-title">03. Моделирование динамики фронта</div>
-          <span style="font-size: 10px; color: var(--section-accent); font-weight: 600;">Ротермел / Гюйгенс</span>
+          <div class="section-title">03. Прогнозирование динамики пожара (Ротермел)</div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Ветер (км/ч): <span id="windSpeedDisplay" style="color:var(--text-main); font-weight:700;">24</span></label>
-            <input type="range" id="windSpeedSlider" min="5" max="55" value="24" style="width:100%; cursor:pointer;" oninput="updateWindSpeed(this.value)">
+            <label class="form-label">Скорость ветра: <span id="windSpeedDisplay" style="color:var(--text-main); font-family:'JetBrains Mono'">24</span> км/ч</label>
+            <input type="range" id="windSpeed" min="0" max="60" value="24" step="2" style="width:100%; cursor:pointer;" oninput="updateWindSpeed(this.value)">
           </div>
           <div class="form-group">
-            <label class="form-label">Азимут сноса: <span id="windAzDisplay" style="color:var(--text-main); font-weight:700;">240°</span></label>
-            <select id="windAzSelect" class="form-input" style="padding: 4px 6px;" onchange="updateWindAzimuth(this.value)">
-              <option value="240" selected>Юго-Запад (240°, Суховей)</option>
-              <option value="180">Юг (180°)</option>
-              <option value="90">Восток (90°)</option>
-              <option value="0">Север (0°)</option>
-              <option value="270">Запад (270°)</option>
-              <option value="135">Юго-Восток (135°)</option>
-              <option value="45">Северо-Восток (45°)</option>
-              <option value="315">Северо-Запад (315°)</option>
-            </select>
+            <label class="form-label">Азимут сноса: <span id="windAzDisplay" style="color:var(--text-main); font-family:'JetBrains Mono'">240°</span></label>
+            <input type="range" id="windAzimuth" min="0" max="360" value="240" step="10" style="width:100%; cursor:pointer;" oninput="updateWindAzimuth(this.value)">
           </div>
         </div>
 
         <button class="btn btn-forecast" style="width: 100%; justify-content: center; margin-top: 2px;" onclick="calculateSpreadForecast()">
-          <span>Рассчитать динамику фронта (+3ч / +6ч / +12ч)</span>
+          <span>Рассчитать динамику распространения</span>
         </button>
 
-        <!-- Threat Exposure Alerts -->
-        <div style="margin-top: 9px;">
-          <div class="form-label" style="display: flex; justify-content: space-between;">
-            <span>Угрозы объектам и инфраструктуре:</span>
-            <span id="threatsCountBadge" style="color: #dc2626; font-weight: 700;">0</span>
+        <!-- Threat Exposure Section -->
+        <div style="margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">
+              Населенные пункты под угрозой
+            </span>
+            <span id="threatsCountBadge" style="background:#fef2f2; color:#dc2626; font-size:10px; font-weight:700; padding:1px 5px; border-radius:3px;">0</span>
           </div>
           <div id="threatsContainer" style="max-height: 130px; overflow-y: auto; margin-top: 4px;">
             <div style="font-size: 11px; color: var(--text-dim); text-align: center; padding: 7px 0;">
@@ -1076,9 +1214,10 @@
       </div>
     </aside>
 
-    <!-- Map Viewport -->
+    <!-- Map Viewport (Dual-Engine: Open-Source Leaflet & Yandex) -->
     <main class="map-container">
-      <div id="yandex-map"></div>
+      <div id="leaflet-map"></div>
+      <div id="yandex-map" style="display: none;"></div>
 
       <!-- Floating Strict Legend -->
       <div class="map-legend">
@@ -1236,14 +1375,29 @@
 </div>
 
 <script>
+  let currentEngine = 'leaflet'; // 'leaflet' (Open-Source 0 ₽) | 'yandex'
+
+  // Leaflet Map & Layer Groups
+  let leafletMap = null;
+  let leafletAoiLayer = null;
+  let leafletContoursLayer = null;
+  let leafletHotspotsLayer = null;
+  let leafletForecastLayer = null;
+  let leafletThreatsLayer = null;
+  let leafletLayerControl = null;
+
+  // Yandex Map & Collections
   let yMap = null;
   let aoiCollection = null;
   let contoursCollection = null;
   let hotspotsCollection = null;
   let forecastCollection = null;
   let threatsCollection = null;
+  let yandexInitialized = false;
 
   let lastQueryData = null;
+  let lastForecastData = null;
+  let lastAoiData = null;
   let currentWindSpeed = 24.0;
   let currentWindAzimuth = 240.0;
 
@@ -1288,36 +1442,300 @@
     return coords.map(toYandexCoords);
   }
 
-  ymaps.ready(initYandexMap);
+  // =========================================================================
+  // 1. OPEN-SOURCE GIS ENGINE (LEAFLET 1.9.4 + ESRI SATELLITE + OSM)
+  // =========================================================================
+  function initLeafletMap() {
+    if (leafletMap) return;
 
-  function initYandexMap() {
-    yMap = new ymaps.Map("yandex-map", {
-      center: [48.5, 43.5], // Нижнее Поволжье и Подонье
+    // Centered on Lower Volga & Don
+    leafletMap = L.map('leaflet-map', {
+      center: [48.5, 43.5],
       zoom: 6,
-      type: 'yandex#hybrid',
-      controls: ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl']
+      zoomControl: true
     });
 
-    aoiCollection = new ymaps.GeoObjectCollection({}, {});
-    contoursCollection = new ymaps.GeoObjectCollection({}, { strokeWidth: 1.5, fillOpacity: 0.55 });
-    hotspotsCollection = new ymaps.GeoObjectCollection({}, {});
-    forecastCollection = new ymaps.GeoObjectCollection({}, {});
-    threatsCollection = new ymaps.GeoObjectCollection({}, {});
+    // Base Layer 1: ESRI World Imagery (High-Resolution Satellite, 0 ₽, No API Key)
+    const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Спутник: &copy; Esri World Imagery (GSD 0.3–15м, 0 ₽)',
+      maxZoom: 19
+    });
 
-    yMap.geoObjects.add(aoiCollection);
-    yMap.geoObjects.add(forecastCollection);
-    yMap.geoObjects.add(contoursCollection);
-    yMap.geoObjects.add(hotspotsCollection);
-    yMap.geoObjects.add(threatsCollection);
+    // Base Layer 2: OpenStreetMap (Standard Topographic Cartography)
+    const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    });
 
-    loadAOI();
-    loadData();
+    // Base Layer 3: CartoDB Positron (Institutional Clean Light)
+    const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB Positron',
+      maxZoom: 19
+    });
+
+    // Add default high-resolution satellite imagery
+    esriSatellite.addTo(leafletMap);
+
+    // Overlay Layers
+    leafletAoiLayer = L.geoJSON(null, {
+      style: {
+        color: '#0284c7',
+        weight: 2,
+        dashArray: '6, 4',
+        fillColor: '#0284c7',
+        fillOpacity: 0.05
+      }
+    }).addTo(leafletMap);
+
+    leafletForecastLayer = L.geoJSON(null, {
+      style: function(feature) {
+        const p = feature.properties || {};
+        return {
+          color: p.color || '#dc2626',
+          weight: 2,
+          fillColor: p.color || '#dc2626',
+          fillOpacity: p.fill_opacity || 0.25
+        };
+      },
+      onEachFeature: function(feature, layer) {
+        const p = feature.properties || {};
+        layer.bindPopup(`
+          <div style="font-size:12px; line-height:1.5;">
+            <div style="font-weight:700; color:${p.color || '#dc2626'}; font-size:13px; margin-bottom:4px;">${p.title || 'Прогноз фронта'}</div>
+            <div><strong>Уровень опасности:</strong> ${p.level || '—'}</div>
+            <div><strong>Прогнозная площадь:</strong> ${p.area_ha || '—'} га</div>
+            <div><strong>Скорость кромки:</strong> ${p.forward_speed_kmh || '—'} км/ч</div>
+            <div><strong>Ветровой режим:</strong> ${p.wind_speed_kmh || '—'} км/ч (${p.wind_azimuth_deg || '—'}°)</div>
+          </div>
+        `);
+      }
+    }).addTo(leafletMap);
+
+    leafletContoursLayer = L.geoJSON(null, {
+      style: function(feature) {
+        const cid = (feature.properties && feature.properties.class_id) || 1;
+        let color = '#ca8a04';
+        if (cid === 2) color = '#ea580c';
+        if (cid === 3) color = '#dc2626';
+        return {
+          color: color,
+          weight: 1.5,
+          fillColor: color,
+          fillOpacity: 0.55
+        };
+      },
+      onEachFeature: function(feature, layer) {
+        const cp = feature.properties || {};
+        const cid = cp.class_id || 1;
+        const cSev = cp.severity || (cid === 1 ? 'слабая' : (cid === 2 ? 'средняя' : 'сильная'));
+        const cArea = cp.area_ha !== undefined ? Number(cp.area_ha).toFixed(2) : '—';
+        const cId = cp.contour_id || 'Контур гари';
+        let badgeColor = cid === 1 ? '#ca8a04' : (cid === 2 ? '#ea580c' : '#dc2626');
+
+        layer.bindTooltip(`<strong>${cId}</strong><br>Степень: ${cSev}<br>Площадь: ${cArea} га`, { sticky: true });
+        layer.bindPopup(`
+          <div style="font-size:12px; line-height:1.6; padding:2px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="font-weight:700; font-size:13px; color:var(--text-main);">${cId}</span>
+              <span style="background:${cid===1?'#fefce8':cid===2?'#fff7ed':'#fef2f2'}; color:${badgeColor}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px; border:1px solid ${badgeColor};">
+                КЛАСС ${cid} (${cSev.toUpperCase()})
+              </span>
+            </div>
+            <div><strong>Площадь выгорания:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700;">${cArea} га</span></div>
+            <div><strong>Спутниковый сенсор:</strong> ${cp.satellite || 'Sentinel-2 MSI (GSD 20м)'}</div>
+            <div><strong>Дата фиксации:</strong> ${cp.date || '—'}</div>
+            ${cp.fire_event_id ? `<div><strong>ID пожара:</strong> ${cp.fire_event_id}</div>` : ''}
+            ${cp.source_chip ? `<div><strong>Чип:</strong> ${cp.source_chip}</div>` : ''}
+          </div>
+        `);
+
+        layer.on({
+          mouseover: function(e) {
+            e.target.setStyle({ fillOpacity: 0.85, weight: 2.5 });
+          },
+          mouseout: function(e) {
+            leafletContoursLayer.resetStyle(e.target);
+          }
+        });
+      }
+    }).addTo(leafletMap);
+
+    leafletHotspotsLayer = L.geoJSON(null, {
+      pointToLayer: function(feature, latlng) {
+        const p = feature.properties || {};
+        if (p.is_flare) {
+          const flareIcon = L.divIcon({
+            className: 'custom-flare-icon',
+            html: '<div class="flare-marker">🏭</div>',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
+          });
+          return L.marker(latlng, { icon: flareIcon });
+        } else {
+          const fireIcon = L.divIcon({
+            className: 'custom-fire-icon',
+            html: '<div class="fire-marker-pulse"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+          });
+          return L.marker(latlng, { icon: fireIcon });
+        }
+      },
+      onEachFeature: function(feature, layer) {
+        const p = feature.properties || {};
+        const bTemp = p.brightness_k || p.brightness_temp_k || 334.2;
+        const bTempC = (bTemp - 273.15).toFixed(1);
+        const frpVal = p.frp_mw || p.frp || 45.0;
+        const confVal = p.confidence ? Math.round(p.confidence) : 90;
+        const isFlare = p.is_flare || false;
+        const pointLabel = p.point_label || (isFlare ? "Техногенный факел" : "Природный пожар");
+        const tpId = p.id || 'TP_VIIRS';
+
+        layer.bindTooltip(`<strong>${pointLabel} (${tpId})</strong><br>T: ${bTemp} K (+${bTempC} °C)<br>FRP: ${frpVal} МВт`, { sticky: true });
+        layer.bindPopup(`
+          <div style="font-size:12px; line-height:1.6; padding:2px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="font-weight:700; color:${isFlare ? '#c2410c' : '#991b1b'}; font-size:13px;">
+                ${isFlare ? '🏭 ТЕХНОГЕННЫЙ ФАКЕЛ' : '🚨 ОЧАГ ГОРЕНИЯ'} (${tpId})
+              </span>
+              <span style="background:${isFlare ? '#fff7ed' : '#fee2e2'}; color:${isFlare ? '#9a3412' : '#991b1b'}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">
+                VIIRS 375M
+              </span>
+            </div>
+            <div><strong>Тип классификации:</strong> <span style="font-weight:700; color:${isFlare ? '#c2410c' : '#dc2626'};">${pointLabel}</span></div>
+            ${p.facility ? `<div><strong>Предприятие:</strong> <strong>${p.facility}</strong></div>` : ''}
+            <div><strong>Яркостная температура:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#b91c1c;">${bTemp} K (+${bTempC} °C)</span></div>
+            <div><strong>Мощность излучения (FRP):</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700;">${frpVal} МВт</span></div>
+            <div><strong>Достоверность детекции:</strong> <span style="color:#047857; font-weight:700;">${confVal}%</span></div>
+            <div><strong>Спутник / Сенсор:</strong> ${p.satellite || 'VIIRS 375m (SNPP / NOAA-20)'}</div>
+            <div><strong>Дата регистрации:</strong> ${p.date || '—'}</div>
+            <div><strong>Рекомендация:</strong> <em>${p.action_recommendation || 'Контроль'}</em></div>
+          </div>
+        `);
+      }
+    }).addTo(leafletMap);
+
+    leafletThreatsLayer = L.layerGroup().addTo(leafletMap);
+
+    // Open-Source Layer Switcher
+    const baseMaps = {
+      "🌐 ESRI Спутник высокого разрешения (0 ₽)": esriSatellite,
+      "🗺️ OpenStreetMap (Топография)": osm,
+      "🏢 CartoDB Светлая подложка": cartoLight
+    };
+
+    const overlayMaps = {
+      "🛡️ Границы мониторинга (AOI)": leafletAoiLayer,
+      "🔥 Термоточки VIIRS 375м": leafletHotspotsLayer,
+      "🌾 Полигоны гарей Sentinel-2": leafletContoursLayer,
+      "🌪️ Прогноз Ротермела (+3ч/+6ч)": leafletForecastLayer,
+      "⚠️ Населенные пункты под угрозой": leafletThreatsLayer
+    };
+
+    leafletLayerControl = L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(leafletMap);
+    L.control.scale({ imperial: false, metric: true, position: 'bottomleft' }).addTo(leafletMap);
+  }
+
+  // =========================================================================
+  // 2. YANDEX MAPS ENGINE (OPTIONAL COMMERCIAL COMPATIBILITY)
+  // =========================================================================
+  function initYandexMap() {
+    if (yandexInitialized) return;
+
+    if (typeof ymaps === 'undefined') {
+      console.warn("Yandex Maps script not ready yet");
+      return;
+    }
+
+    ymaps.ready(() => {
+      yMap = new ymaps.Map("yandex-map", {
+        center: [48.5, 43.5],
+        zoom: 6,
+        type: 'yandex#hybrid',
+        controls: ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl']
+      });
+
+      aoiCollection = new ymaps.GeoObjectCollection({}, {});
+      contoursCollection = new ymaps.GeoObjectCollection({}, { strokeWidth: 1.5, fillOpacity: 0.55 });
+      hotspotsCollection = new ymaps.GeoObjectCollection({}, {});
+      forecastCollection = new ymaps.GeoObjectCollection({}, {});
+      threatsCollection = new ymaps.GeoObjectCollection({}, {});
+
+      yMap.geoObjects.add(aoiCollection);
+      yMap.geoObjects.add(forecastCollection);
+      yMap.geoObjects.add(contoursCollection);
+      yMap.geoObjects.add(hotspotsCollection);
+      yMap.geoObjects.add(threatsCollection);
+
+      yandexInitialized = true;
+
+      // Sync data if already loaded
+      if (lastAoiData) renderYandexAOI(lastAoiData);
+      if (lastQueryData) renderYandexData(lastQueryData);
+      if (lastForecastData) renderYandexForecast(lastForecastData);
+    });
+  }
+
+  // Engine Switcher Function
+  function switchEngine(target) {
+    currentEngine = target;
+    const btnL = document.getElementById('btnEngineLeaflet');
+    const btnY = document.getElementById('btnEngineYandex');
+    const mapL = document.getElementById('leaflet-map');
+    const mapY = document.getElementById('yandex-map');
+    const badge = document.getElementById('activeEngineBadge');
+
+    if (target === 'leaflet') {
+      btnL.classList.add('active');
+      btnY.classList.remove('active');
+      mapL.style.display = 'block';
+      mapY.style.display = 'none';
+      if (badge) {
+        badge.textContent = 'OPEN-SOURCE ГИС (0 ₽)';
+        badge.style.background = '#ecfdf5';
+        badge.style.color = '#065f46';
+        badge.style.borderColor = '#a7f3d0';
+      }
+      setTimeout(() => {
+        if (leafletMap) leafletMap.invalidateSize();
+      }, 50);
+    } else {
+      btnY.classList.add('active');
+      btnL.classList.remove('active');
+      mapY.style.display = 'block';
+      mapL.style.display = 'none';
+      if (badge) {
+        badge.textContent = 'ЯНДЕКС.КАРТЫ (ГИБРИД)';
+        badge.style.background = '#eff6ff';
+        badge.style.color = '#1e40af';
+        badge.style.borderColor = '#bfdbfe';
+      }
+      if (!yandexInitialized) {
+        initYandexMap();
+      } else if (yMap) {
+        setTimeout(() => {
+          yMap.container.fitToViewport();
+        }, 50);
+      }
+    }
   }
 
   function setBboxPreset(name) {
     if (PRESETS[name]) {
       document.getElementById('bboxInput').value = PRESETS[name];
       loadData();
+    }
+  }
+
+  function fitAOI() {
+    if (currentEngine === 'leaflet') {
+      if (leafletAoiLayer && leafletAoiLayer.getLayers().length > 0) {
+        leafletMap.fitBounds(leafletAoiLayer.getBounds(), { padding: [20, 20] });
+      } else {
+        leafletMap.fitBounds([[44.6, 38.3], [52.7, 48.0]], { padding: [20, 20] });
+      }
+    } else {
+      fitYandexAOI();
     }
   }
 
@@ -1329,44 +1747,59 @@
     }
   }
 
+  // Load AOI Boundary
   async function loadAOI() {
     try {
       const res = await fetch('/api/aoi');
       if (!res.ok) return;
       const data = await res.json();
-      
-      aoiCollection.removeAll();
-      if (data.features) {
-        data.features.forEach(feat => {
-          if (feat.geometry && feat.geometry.coordinates) {
-            const yCoords = toYandexCoords(feat.geometry.coordinates);
-            const poly = new ymaps.Polygon(yCoords, {
-              hintContent: `<strong>${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
-              balloonContentHeader: `<span style="font-weight:700; color:#0f172a; font-size:13px;">🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</span>`,
-              balloonContentBody: `
-                <div style="font-size:12px; line-height:1.6; color:#334155; padding:4px 0;">
-                  <div><strong>Назначение:</strong> ${feat.properties.role || 'Оперативный спутниковый контроль'}</div>
-                  <div><strong>Охват площади:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
-                  <div><strong>Субъекты РФ:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
-                  <div><strong>Период наблюдений:</strong> ${feat.properties.seasons || '2019–2025'}</div>
-                </div>
-              `
-            }, {
-              strokeColor: '#0284c7',
-              strokeWidth: 2,
-              strokePattern: [6, 4],
-              fillColor: '#0284c7',
-              fillOpacity: 0.05
-            });
-            aoiCollection.add(poly);
-          }
-        });
+      lastAoiData = data;
+
+      // 1. Render to Open-Source Leaflet
+      if (leafletAoiLayer) {
+        leafletAoiLayer.clearLayers();
+        leafletAoiLayer.addData(data);
       }
+
+      // 2. Render to Yandex
+      renderYandexAOI(data);
     } catch (e) {
       console.log("AOI loading error:", e);
     }
   }
 
+  function renderYandexAOI(data) {
+    if (!yMap || !aoiCollection) return;
+    aoiCollection.removeAll();
+    if (data.features) {
+      data.features.forEach(feat => {
+        if (feat.geometry && feat.geometry.coordinates) {
+          const yCoords = toYandexCoords(feat.geometry.coordinates);
+          const poly = new ymaps.Polygon(yCoords, {
+            hintContent: `<strong>${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
+            balloonContentHeader: `<span style="font-weight:700; color:#0f172a; font-size:13px;">🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</span>`,
+            balloonContentBody: `
+              <div style="font-size:12px; line-height:1.6; color:#334155; padding:4px 0;">
+                <div><strong>Назначение:</strong> ${feat.properties.role || 'Оперативный спутниковый контроль'}</div>
+                <div><strong>Охват площади:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
+                <div><strong>Субъекты РФ:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
+                <div><strong>Период наблюдений:</strong> ${feat.properties.seasons || '2019–2025'}</div>
+              </div>
+            `
+          }, {
+            strokeColor: '#0284c7',
+            strokeWidth: 2,
+            strokePattern: [6, 4],
+            fillColor: '#0284c7',
+            fillOpacity: 0.05
+          });
+          aoiCollection.add(poly);
+        }
+      });
+    }
+  }
+
+  // Load Data Query
   async function loadData() {
     const bbox = document.getElementById('bboxInput').value.trim();
     const dFrom = document.getElementById('dateFrom').value;
@@ -1392,13 +1825,75 @@
   }
 
   function renderData(data) {
+    // 1. Render to Leaflet Open-Source Map
+    if (leafletContoursLayer) {
+      leafletContoursLayer.clearLayers();
+      if (data.contours) leafletContoursLayer.addData(data.contours);
+    }
+    if (leafletHotspotsLayer) {
+      leafletHotspotsLayer.clearLayers();
+      if (data.thermopoints) leafletHotspotsLayer.addData(data.thermopoints);
+    }
+
+    // 2. Render to Yandex Map
+    renderYandexData(data);
+
+    // 3. Update Operational Analytics Panel
+    if (data.contours && data.contours.features) {
+      document.getElementById('statContCount').textContent = data.contours.features.length;
+    } else {
+      document.getElementById('statContCount').textContent = '0';
+    }
+
+    if (data.thermopoints && data.thermopoints.features) {
+      const tpList = data.thermopoints.features;
+      const wfCount = tpList.filter(f => !f.properties.is_flare).length;
+      const flareCount = tpList.filter(f => f.properties.is_flare).length;
+      document.getElementById('statTpCount').innerHTML = `${wfCount} <span style="font-size:10.5px; color:var(--text-dim);">(факелы: ${flareCount})</span>`;
+    } else {
+      document.getElementById('statTpCount').textContent = '0';
+    }
+
+    if (data.report) {
+      const r = data.report;
+      const totalHa = r.total_ha || r.total_burned_area_ha || 0;
+      const totalKm2 = (totalHa / 100).toFixed(2);
+      
+      document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size:13px; font-weight:400; color:var(--text-muted)">га</span>`;
+      document.getElementById('kpiTotalKm').textContent = `${totalKm2} км² (GSD: 20м = 0.04 га/пикс)`;
+
+      const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
+      const s2 = r.sev2_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0;
+      const s3 = r.sev3_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0;
+
+      document.getElementById('sev1Ha').textContent = Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+      document.getElementById('sev2Ha').textContent = Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+      document.getElementById('sev3Ha').textContent = Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+
+      const p1 = r.sev1_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["1"]) || (totalHa > 0 ? (s1/totalHa*100).toFixed(1) : 0);
+      const p2 = r.sev2_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["2"]) || (totalHa > 0 ? (s2/totalHa*100).toFixed(1) : 0);
+      const p3 = r.sev3_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["3"]) || (totalHa > 0 ? (s3/totalHa*100).toFixed(1) : 0);
+
+      document.getElementById('sev1Pct').textContent = p1 + '%';
+      document.getElementById('sev2Pct').textContent = p2 + '%';
+      document.getElementById('sev3Pct').textContent = p3 + '%';
+
+      document.getElementById('progSev1').style.width = p1 + '%';
+      document.getElementById('progSev2').style.width = p2 + '%';
+      document.getElementById('progSev3').style.width = p3 + '%';
+
+      if (r.damage_assessment) {
+        document.getElementById('statDamageRub').textContent = r.damage_assessment.total_damage_formatted;
+      }
+    }
+  }
+
+  function renderYandexData(data) {
+    if (!yMap || !contoursCollection || !hotspotsCollection) return;
     contoursCollection.removeAll();
     hotspotsCollection.removeAll();
 
-    // 1. Render Contours
     if (data.contours && data.contours.features) {
-      document.getElementById('statContCount').textContent = data.contours.features.length;
-
       data.contours.features.forEach(feat => {
         const cp = feat.properties || {};
         const cid = cp.class_id || 1;
@@ -1452,19 +1947,10 @@
 
         contoursCollection.add(poly);
       });
-    } else {
-      document.getElementById('statContCount').textContent = '0';
     }
 
-    // 2. Render Hotspots
     if (data.thermopoints && data.thermopoints.features) {
-      const tpList = data.thermopoints.features;
-      const wfCount = tpList.filter(f => !f.properties.is_flare).length;
-      const flareCount = tpList.filter(f => f.properties.is_flare).length;
-      
-      document.getElementById('statTpCount').innerHTML = `${wfCount} <span style="font-size:10.5px; color:var(--text-dim);">(факелы: ${flareCount})</span>`;
-
-      tpList.forEach(feat => {
+      data.thermopoints.features.forEach(feat => {
         const coords = [feat.geometry.coordinates[1], feat.geometry.coordinates[0]];
         const p = feat.properties || {};
 
@@ -1511,42 +1997,6 @@
 
         hotspotsCollection.add(placemark);
       });
-    } else {
-      document.getElementById('statTpCount').textContent = '0';
-    }
-
-    // 3. Update Operational Analytics
-    if (data.report) {
-      const r = data.report;
-      const totalHa = r.total_ha || r.total_burned_area_ha || 0;
-      const totalKm2 = (totalHa / 100).toFixed(2);
-      
-      document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size:13px; font-weight:400; color:var(--text-muted)">га</span>`;
-      document.getElementById('kpiTotalKm').textContent = `${totalKm2} км² (GSD: 20м = 0.04 га/пикс)`;
-
-      const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
-      const s2 = r.sev2_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0;
-      const s3 = r.sev3_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0;
-
-      document.getElementById('sev1Ha').textContent = Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
-      document.getElementById('sev2Ha').textContent = Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
-      document.getElementById('sev3Ha').textContent = Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
-
-      const p1 = r.sev1_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["1"]) || (totalHa > 0 ? (s1/totalHa*100).toFixed(1) : 0);
-      const p2 = r.sev2_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["2"]) || (totalHa > 0 ? (s2/totalHa*100).toFixed(1) : 0);
-      const p3 = r.sev3_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["3"]) || (totalHa > 0 ? (s3/totalHa*100).toFixed(1) : 0);
-
-      document.getElementById('sev1Pct').textContent = p1 + '%';
-      document.getElementById('sev2Pct').textContent = p2 + '%';
-      document.getElementById('sev3Pct').textContent = p3 + '%';
-
-      document.getElementById('progSev1').style.width = p1 + '%';
-      document.getElementById('progSev2').style.width = p2 + '%';
-      document.getElementById('progSev3').style.width = p3 + '%';
-
-      if (r.damage_assessment) {
-        document.getElementById('statDamageRub').textContent = r.damage_assessment.total_damage_formatted;
-      }
     }
   }
 
@@ -1568,6 +2018,7 @@
       const res = await fetch(url);
       if (!res.ok) throw new Error("Forecast failed");
       const data = await res.json();
+      lastForecastData = data;
 
       renderForecast(data);
     } catch (e) {
@@ -1576,10 +2027,72 @@
   }
 
   function renderForecast(data) {
+    // 1. Render to Leaflet
+    if (leafletForecastLayer) {
+      leafletForecastLayer.clearLayers();
+      if (data.forecast_collection) leafletForecastLayer.addData(data.forecast_collection);
+    }
+
+    if (leafletThreatsLayer) {
+      leafletThreatsLayer.clearLayers();
+      const threats = data.threats || [];
+      threats.forEach(t => {
+        const threatIcon = L.divIcon({
+          className: 'custom-threat-icon',
+          html: `<div class="threat-marker-icon" style="border-color:${t.badge_color};">⚠️</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+        const m = L.marker([t.lat, t.lon], { icon: threatIcon });
+        m.bindTooltip(`<strong>Угроза: ${t.asset_name}</strong><br>Подступ: ${t.eta_formatted}`, { sticky: true });
+        m.bindPopup(`
+          <div style="font-size:12px; line-height:1.5;">
+            <div style="color:${t.badge_color}; font-weight:700; font-size:13px; margin-bottom:4px;">⚠️ Угроза инфраструктуре: ${t.asset_name}</div>
+            <div><strong>Тип объекта:</strong> ${t.asset_type} (${t.region})</div>
+            <div><strong>Дистанция до очага:</strong> ${t.distance_km} км</div>
+            <div><strong>Расчетное время подступа:</strong> <span style="color:${t.badge_color}; font-weight:700;">${t.eta_formatted}</span></div>
+            <div><strong>Статус реагирования:</strong> Необходима организация минерализованных полос</div>
+          </div>
+        `);
+        leafletThreatsLayer.addLayer(m);
+      });
+    }
+
+    // 2. Render to Yandex
+    renderYandexForecast(data);
+
+    // 3. Render Threat Cards to Sidebar
+    const tContainer = document.getElementById('threatsContainer');
+    const threats = data.threats || [];
+    document.getElementById('threatsCountBadge').textContent = threats.length;
+
+    if (threats.length === 0) {
+      tContainer.innerHTML = '<div style="font-size:11px; color:var(--text-dim); text-align:center; padding:7px 0;">В опасном секторе населенных пунктов не обнаружено</div>';
+    } else {
+      let html = '';
+      threats.forEach(t => {
+        html += `
+          <div class="threat-card" style="border-left-color: ${t.badge_color};">
+            <div class="threat-header">
+              <span class="threat-title">${t.asset_name}</span>
+              <span class="threat-badge" style="background:${t.badge_color}; color:#fff;">${t.risk_level}</span>
+            </div>
+            <div class="threat-body">
+              <div>Расстояние: <strong>${t.distance_km} км</strong> (азимут ${t.bearing_deg}°)</div>
+              <div>Расчетный подступ огня: <strong style="color:${t.badge_color};">${t.eta_formatted}</strong></div>
+            </div>
+          </div>
+        `;
+      });
+      tContainer.innerHTML = html;
+    }
+  }
+
+  function renderYandexForecast(data) {
+    if (!yMap || !forecastCollection || !threatsCollection) return;
     forecastCollection.removeAll();
     threatsCollection.removeAll();
 
-    // 1. Render Forecast Ellipses
     if (data.forecast_collection && data.forecast_collection.features) {
       data.forecast_collection.features.forEach(feat => {
         const p = feat.properties;
@@ -1607,47 +2120,24 @@
       });
     }
 
-    // 2. Render Threatened Assets
-    const tContainer = document.getElementById('threatsContainer');
     const threats = data.threats || [];
-    document.getElementById('threatsCountBadge').textContent = threats.length;
-
-    if (threats.length === 0) {
-      tContainer.innerHTML = '<div style="font-size:11px; color:var(--text-dim); text-align:center; padding:7px 0;">В опасном секторе населенных пунктов не обнаружено</div>';
-    } else {
-      let html = '';
-      threats.forEach(t => {
-        html += `
-          <div class="threat-card" style="border-left-color: ${t.badge_color};">
-            <div class="threat-header">
-              <span class="threat-title">${t.asset_name}</span>
-              <span class="threat-badge" style="background:${t.badge_color}; color:#fff;">${t.risk_level}</span>
-            </div>
-            <div class="threat-body">
-              <div>Расстояние: <strong>${t.distance_km} км</strong> (азимут ${t.bearing_deg}°)</div>
-              <div>Расчетный подступ огня: <strong style="color:${t.badge_color};">${t.eta_formatted}</strong></div>
-            </div>
+    threats.forEach(t => {
+      const mark = new ymaps.Placemark([t.lat, t.lon], {
+        hintContent: `<strong>Угроза: ${t.asset_name}</strong><br>Подступ: ${t.eta_formatted}`,
+        balloonContentHeader: `<span style="color:${t.badge_color}; font-weight:700;">⚠️ Угроза инфраструктуре: ${t.asset_name}</span>`,
+        balloonContentBody: `
+          <div style="font-size:12px; line-height:1.5;">
+            <div><strong>Тип объекта:</strong> ${t.asset_type} (${t.region})</div>
+            <div><strong>Дистанция до очага:</strong> ${t.distance_km} км</div>
+            <div><strong>Расчетное время подступа:</strong> <span style="color:${t.badge_color}; font-weight:700;">${t.eta_formatted}</span></div>
+            <div><strong>Статус реагирования:</strong> Необходима организация минерализованных полос</div>
           </div>
-        `;
-
-        const mark = new ymaps.Placemark([t.lat, t.lon], {
-          hintContent: `<strong>Угроза: ${t.asset_name}</strong><br>Подступ: ${t.eta_formatted}`,
-          balloonContentHeader: `<span style="color:${t.badge_color}; font-weight:700;">⚠️ Угроза инфраструктуре: ${t.asset_name}</span>`,
-          balloonContentBody: `
-            <div style="font-size:12px; line-height:1.5;">
-              <div><strong>Тип объекта:</strong> ${t.asset_type} (${t.region})</div>
-              <div><strong>Дистанция до очага:</strong> ${t.distance_km} км</div>
-              <div><strong>Расчетное время подступа:</strong> <span style="color:${t.badge_color}; font-weight:700;">${t.eta_formatted}</span></div>
-              <div><strong>Статус реагирования:</strong> Необходима организация минерализованных полос</div>
-            </div>
-          `
-        }, {
-          preset: 'islands#attentionIcon'
-        });
-        threatsCollection.add(mark);
+        `
+      }, {
+        preset: 'islands#attentionIcon'
       });
-      tContainer.innerHTML = html;
-    }
+      threatsCollection.add(mark);
+    });
   }
 
   // SitRep Modal Functions
@@ -1753,6 +2243,20 @@
     }
     window.location.href = url;
   }
+
+  // Window onload: start with Open-Source GIS immediately!
+  window.addEventListener('DOMContentLoaded', () => {
+    initLeafletMap();
+    loadAOI();
+    loadData();
+
+    // Prepare Yandex in background if available
+    if (typeof ymaps !== 'undefined') {
+      ymaps.ready(() => {
+        // Can be initialized on switch or ahead of time
+      });
+    }
+  });
 </script>
 
 </body>

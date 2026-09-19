@@ -113,7 +113,18 @@ def health():
         "status": "ok",
         "service": "Fire Monitoring Service (Predictive GIS)",
         "version": "2.5.0",
-        "primary_engine": "Yandex Maps API 2.1 (Hybrid/Satellite)",
+        "primary_engine": "Open-Source GIS (Leaflet 1.9.4 + ESRI World Imagery + OSM)",
+        "secondary_engine": "Yandex Maps API 2.1 (Hybrid)",
+        "license_cost": "0 RUB (Zero-TCO, 100% Free Open-Source)",
+        "deployment_modes": ["Offline / Air-Gapped (ЗСПД МЧС)", "Public Cloud / On-Premise GeoServer"],
+        "open_source_stack": [
+            "Leaflet 1.9.4 (BSD-2-Clause)",
+            "ESRI World Imagery (0 API key required)",
+            "OpenStreetMap Standard Cartography",
+            "FastAPI / Uvicorn (MIT)",
+            "GDAL / Rasterio / Shapely (BSD / MIT)",
+            "NumPy / Pandas / SciPy (BSD)"
+        ],
         "features": [
             "Active Fire detection (VIIRS 375m)",
             "Burn Severity segmentation (Sentinel-2 dNBR)",
