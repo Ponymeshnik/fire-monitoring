@@ -38,6 +38,7 @@ data/
 *.cpg
 demo_cache/
 *submission*.csv
+visualizations/
 
 # Weights (uncomment if storing large checkpoints outside)
 # weights/*.pt

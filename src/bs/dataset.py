@@ -35,7 +35,7 @@ class BSDataset(Dataset):
         aux = self._read(os.path.join(self.aux_dir, f"{cid}_AUX.tif"))
         feats = bs_features(s2p, s2q, s1p, s1q, aux)
 
-        if self.split == "train":
+        if self.split in ("train", "val"):
             mask = self._read(os.path.join(self.mask_dir, f"{cid}_MASK.tif"))[0].astype(np.int64)
         else:
             mask = np.zeros(feats.shape[1:], dtype=np.int64)

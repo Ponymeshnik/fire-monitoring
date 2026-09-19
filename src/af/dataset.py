@@ -28,7 +28,7 @@ class AFDataset(Dataset):
         viirs = self._read(os.path.join(self.viirs_dir, f"{cid}_VIIRS_I1-I5.tif"))
         aux = self._read(os.path.join(self.aux_dir, f"{cid}_AUX.tif"))
         feats = af_features(viirs, aux)  # (F, H, W)
-        if self.split == "train":
+        if self.split in ("train", "val"):
             mask = self._read(os.path.join(self.mask_dir, f"{cid}_MASK.tif"))[0]
             mask = (mask > 0).astype(np.float32)
         else:

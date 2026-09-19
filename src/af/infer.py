@@ -34,12 +34,13 @@ def infer_af(data_root, test_dir, out_csv, weights_dir, device="cuda"):
         with torch.no_grad():
             for x, _ in dl:
                 x = x.to(device)
+                is_hot = (x[:, 3] > 325.0) & (x[:, 5] > 12.0) & (x[:, 6] < 0.25)
                 mu = x.mean(dim=(2, 3), keepdim=True)
                 sd = x.std(dim=(2, 3), keepdim=True) + 1e-6
                 x = (x - mu) / sd
                 with torch.cuda.amp.autocast(enabled=(device == "cuda")):
                     probs = torch.stack([torch.sigmoid(m(x)) for m in models]).mean(0)
-                preds = (probs > 0.35).cpu().numpy().astype(np.uint8)[:, 0]
+                preds = ((probs[:, 0] > 0.35) | is_hot).cpu().numpy().astype(np.uint8)
                 for b in range(preds.shape[0]):
                     cid = af_ids[idx]
                     idx += 1
