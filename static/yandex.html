@@ -517,26 +517,37 @@
 <script>
   let yMap = null;
   let aoiGeoObject = null;
+  let aoiCollection = null;
   let contoursCollection = null;
   let hotspotsCollection = null;
+
+  // Helper: Invert GeoJSON coordinates [longitude, latitude] -> Yandex [latitude, longitude]
+  function toYandexCoords(coords) {
+    if (!Array.isArray(coords)) return coords;
+    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+      return [coords[1], coords[0]]; // [lon, lat] -> [lat, lon]
+    }
+    return coords.map(toYandexCoords);
+  }
 
   ymaps.ready(initYandexMap);
 
   function initYandexMap() {
     yMap = new ymaps.Map("yandex-map", {
-      center: [48.5, 43.5], // Нижнее Поволжье и Дон
+      center: [48.5, 43.5], // Нижнее Поволжье и Дон: 48.5°N, 43.5°E
       zoom: 6,
-      type: 'yandex#hybrid', // По умолчанию: спутниковый гибрид с надписями
+      type: 'yandex#hybrid', // Спутниковый гибрид с надписями
       controls: ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl']
     });
 
+    aoiCollection = new ymaps.GeoObjectCollection({}, {});
     contoursCollection = new ymaps.GeoObjectCollection({}, {
       strokeWidth: 2,
       fillOpacity: 0.6
     });
-
     hotspotsCollection = new ymaps.GeoObjectCollection({}, {});
 
+    yMap.geoObjects.add(aoiCollection);
     yMap.geoObjects.add(contoursCollection);
     yMap.geoObjects.add(hotspotsCollection);
 
@@ -550,7 +561,9 @@
   }
 
   function fitYandexAOI() {
-    if (yMap) {
+    if (yMap && aoiCollection && aoiCollection.getLength() > 0) {
+      yMap.setBounds(aoiCollection.getBounds(), { checkZoomRange: true });
+    } else if (yMap) {
       yMap.setBounds([[44.6, 38.3], [52.7, 48.0]], { checkZoomRange: true });
     }
   }
@@ -561,14 +574,33 @@
       if (!res.ok) return;
       const data = await res.json();
       
-      const aoiObjects = ymaps.geoQuery(data).addToMap(yMap);
-      aoiObjects.setOptions({
-        strokeColor: '#38bdf8',
-        strokeWidth: 2,
-        strokePattern: [6, 6],
-        fillColor: '#38bdf8',
-        fillOpacity: 0.05
-      });
+      aoiCollection.removeAll();
+      if (data.features) {
+        data.features.forEach(feat => {
+          if (feat.geometry && feat.geometry.coordinates) {
+            const yCoords = toYandexCoords(feat.geometry.coordinates);
+            const poly = new ymaps.Polygon(yCoords, {
+              hintContent: `<strong>${feat.properties.name || 'Граница зоны'}</strong>`,
+              balloonContentHeader: `<strong>🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
+              balloonContentBody: `
+                <div style="font-size:13px; line-height:1.6;">
+                  <div><strong>Назначение:</strong> ${feat.properties.role || 'Зона мониторинга'}</div>
+                  <div><strong>Площадь:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
+                  <div><strong>Регионы:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
+                  <div><strong>Сезоны:</strong> ${feat.properties.seasons || '2019–2025'}</div>
+                </div>
+              `
+            }, {
+              strokeColor: '#38bdf8',
+              strokeWidth: 2.5,
+              strokePattern: [6, 6],
+              fillColor: '#38bdf8',
+              fillOpacity: 0.06
+            });
+            aoiCollection.add(poly);
+          }
+        });
+      }
     } catch (e) {
       console.log("AOI loading:", e);
     }
@@ -611,7 +643,10 @@
         const cDate = cp.date || '—';
         const cFireEvent = cp.fire_event_id || '';
 
-        const poly = new ymaps.Polygon(feat.geometry.coordinates, {
+        // Convert [lon, lat] -> [lat, lon]
+        const yandexCoords = toYandexCoords(feat.geometry.coordinates);
+
+        const poly = new ymaps.Polygon(yandexCoords, {
           hintContent: `<strong>${cId}</strong><br>Степень: ${cSev}<br>Площадь: ${cArea} га`,
           balloonContentHeader: `<span style="color:${color}; font-weight:bold; font-size:14px;">🔥 ${cId}</span>`,
           balloonContentBody: `
