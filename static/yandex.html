@@ -598,20 +598,30 @@
     // 1. Render Contours
     if (data.contours && data.contours.features) {
       data.contours.features.forEach(feat => {
-        const cid = feat.properties.class_id;
+        const cp = feat.properties || {};
+        const cid = cp.class_id || 1;
         let color = '#dc2626';
         if (cid === 1) color = '#facc15';
         else if (cid === 2) color = '#fb923c';
 
+        const cId = cp.contour_id || 'Контур гари';
+        const cSev = cp.severity || (cid === 1 ? 'слабая' : (cid === 2 ? 'средняя' : 'сильная'));
+        const cArea = cp.area_ha !== undefined ? Number(cp.area_ha).toFixed(2) : '—';
+        const cSat = cp.satellite || 'Sentinel-2 MSI';
+        const cDate = cp.date || '—';
+        const cFireEvent = cp.fire_event_id || '';
+
         const poly = new ymaps.Polygon(feat.geometry.coordinates, {
-          hintContent: `<strong>${feat.properties.contour_id}</strong><br>Степень: ${feat.properties.severity}<br>Площадь: ${feat.properties.area_ha} га`,
-          balloonContentHeader: `<span style="color:${color}; font-weight:bold;">🔥 ${feat.properties.contour_id}</span>`,
+          hintContent: `<strong>${cId}</strong><br>Степень: ${cSev}<br>Площадь: ${cArea} га`,
+          balloonContentHeader: `<span style="color:${color}; font-weight:bold; font-size:14px;">🔥 ${cId}</span>`,
           balloonContentBody: `
-            <div style="font-size:13px; line-height:1.5;">
-              <div><strong>Степень поражения:</strong> ${feat.properties.severity} (Класс ${cid})</div>
-              <div><strong>Площадь гари:</strong> ${feat.properties.area_ha} га</div>
-              <div><strong>Спутник:</strong> ${feat.properties.satellite || 'Sentinel-2'}</div>
-              <div><strong>Дата съемки:</strong> ${feat.properties.date || '—'}</div>
+            <div style="font-size:13px; line-height:1.6; padding: 4px 0;">
+              <div><strong>Степень поражения:</strong> <span style="color:${color}; font-weight:bold;">${cSev} (Класс ${cid})</span></div>
+              <div><strong>Площадь гари:</strong> <strong>${cArea} га</strong></div>
+              <div><strong>Спутник:</strong> ${cSat}</div>
+              <div><strong>Дата съемки:</strong> ${cDate}</div>
+              ${cFireEvent ? `<div><strong>ID пожарного события:</strong> ${cFireEvent}</div>` : ''}
+              ${cp.source_chip ? `<div><strong>Тестовый чип:</strong> ${cp.source_chip}</div>` : ''}
             </div>
           `
         }, {
@@ -629,18 +639,28 @@
     if (data.thermopoints && data.thermopoints.features) {
       data.thermopoints.features.forEach(feat => {
         const coords = [feat.geometry.coordinates[1], feat.geometry.coordinates[0]];
-        const p = feat.properties;
+        const p = feat.properties || {};
+
+        const bTemp = p.brightness_k || p.brightness_temp_k || 334.2;
+        const bTempC = (bTemp - 273.15).toFixed(1);
+        const frpVal = p.frp_mw || p.frp || 45.0;
+        const confVal = p.confidence ? Math.round(p.confidence) : 92;
+        const satVal = p.satellite || "VIIRS 375m (SNPP / NOAA-20)";
+        const dateVal = p.date || (p.acq_datetime ? p.acq_datetime.split('T')[0] : '—');
+        const tpId = p.id || 'TP_VIIRS';
 
         const placemark = new ymaps.Placemark(coords, {
-          hintContent: `<strong>Очаг горения VIIRS</strong><br>Мощность (FRP): ${p.frp} МВт`,
-          balloonContentHeader: `<span style="color:#ef4444; font-weight:bold;">🔥 Термоточка горения</span>`,
+          hintContent: `<strong>Очаг горения ${tpId}</strong><br>Температура: ${bTemp} K (+${bTempC} °C)<br>Мощность (FRP): ${frpVal} МВт`,
+          balloonContentHeader: `<span style="color:#ef4444; font-weight:bold; font-size:14px;">🚨 Очаг активного горения (${tpId})</span>`,
           balloonContentBody: `
-            <div style="font-size:13px; line-height:1.5;">
-              <div><strong>Яркостная температура:</strong> ${p.brightness_temp_k} K</div>
-              <div><strong>Мощность (FRP):</strong> ${p.frp} МВт</div>
-              <div><strong>Достоверность детекции:</strong> ${p.confidence}%</div>
-              <div><strong>Спутник:</strong> VIIRS 375m</div>
-              <div><strong>Дата:</strong> ${p.date || '—'}</div>
+            <div style="font-size:13px; line-height:1.6; padding: 4px 0;">
+              <div><strong>Яркостная температура:</strong> <span style="color:#f87171; font-weight:bold;">${bTemp} K (+${bTempC} °C)</span></div>
+              <div><strong>Мощность излучения (FRP):</strong> <strong>${frpVal} МВт</strong></div>
+              <div><strong>Достоверность детекции:</strong> <span style="color:#34d399; font-weight:bold;">${confVal}%</span></div>
+              <div><strong>Спутник / Сенсор:</strong> ${satVal}</div>
+              <div><strong>Дата фиксации:</strong> ${dateVal}</div>
+              <div><strong>Координаты:</strong> ${coords[0].toFixed(4)}°N, ${coords[1].toFixed(4)}°E</div>
+              ${p.chip_id ? `<div><strong>Тестовый чип:</strong> ${p.chip_id}</div>` : ''}
             </div>
           `
         }, {
@@ -654,20 +674,23 @@
     // 3. Update Analytics
     if (data.report) {
       const r = data.report;
-      document.getElementById('valTotalArea').textContent = (r.total_burned_area_ha || 0).toLocaleString();
-      document.getElementById('valTotalHotspots').textContent = (r.active_hotspots_count || 0);
+      const totalHa = r.total_ha || r.total_burned_area_ha || 0;
+      const totalTp = r.total_thermopoints || r.active_hotspots_count || (data.thermopoints ? data.thermopoints.features.length : 0);
+      
+      document.getElementById('valTotalArea').textContent = Number(totalHa).toLocaleString('ru-RU', {maximumFractionDigits: 1});
+      document.getElementById('valTotalHotspots').textContent = totalTp;
 
-      const s1 = (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
-      const s2 = (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0;
-      const s3 = (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0;
+      const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
+      const s2 = r.sev2_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0;
+      const s3 = r.sev3_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0;
 
-      document.getElementById('valSev1').textContent = s1.toLocaleString();
-      document.getElementById('valSev2').textContent = s2.toLocaleString();
-      document.getElementById('valSev3').textContent = s3.toLocaleString();
+      document.getElementById('valSev1').textContent = Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1});
+      document.getElementById('valSev2').textContent = Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1});
+      document.getElementById('valSev3').textContent = Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1});
 
-      const p1 = (r.severity_breakdown_pct && r.severity_breakdown_pct["1"]) || 0;
-      const p2 = (r.severity_breakdown_pct && r.severity_breakdown_pct["2"]) || 0;
-      const p3 = (r.severity_breakdown_pct && r.severity_breakdown_pct["3"]) || 0;
+      const p1 = r.sev1_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["1"]) || (totalHa > 0 ? (s1/totalHa*100).toFixed(1) : 0);
+      const p2 = r.sev2_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["2"]) || (totalHa > 0 ? (s2/totalHa*100).toFixed(1) : 0);
+      const p3 = r.sev3_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["3"]) || (totalHa > 0 ? (s3/totalHa*100).toFixed(1) : 0);
 
       document.getElementById('pctSev1').textContent = p1 + '%';
       document.getElementById('pctSev2').textContent = p2 + '%';

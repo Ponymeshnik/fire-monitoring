@@ -77,12 +77,16 @@ def report_from_contours(features, total_thermopoints=0):
     
     return {
         "total_ha": total_ha,
+        "total_burned_area_ha": total_ha,
+        "active_hotspots_count": total_thermopoints,
         "sev1_ha": sev1_ha,
         "sev2_ha": sev2_ha,
         "sev3_ha": sev3_ha,
         "sev1_pct": sev1_pct,
         "sev2_pct": sev2_pct,
         "sev3_pct": sev3_pct,
+        "severity_breakdown_ha": {"1": sev1_ha, "2": sev2_ha, "3": sev3_ha},
+        "severity_breakdown_pct": {"1": sev1_pct, "2": sev2_pct, "3": sev3_pct},
         "total_contours": len(features),
         "total_thermopoints": total_thermopoints,
         "breakdown": {
