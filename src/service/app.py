@@ -89,6 +89,15 @@ def index():
     return HTMLResponse("<h1>Fire Monitoring Service Active</h1><p>Visit /query or /health</p>")
 
 
+@app.get("/yandex", response_class=HTMLResponse)
+def yandex_view():
+    """Serves the interactive Yandex Maps GIS application."""
+    yandex_path = os.path.join(STATIC_DIR, "yandex.html")
+    if os.path.exists(yandex_path):
+        return FileResponse(yandex_path)
+    return HTMLResponse("<h1>Yandex Maps Interface Loading...</h1>")
+
+
 @app.get("/health")
 def health():
     """Health check endpoint."""

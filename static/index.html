@@ -684,6 +684,9 @@
     </div>
 
     <div class="nav-actions">
+      <a href="/yandex" class="btn" style="background: linear-gradient(135deg, #fc3f1d, #ea580c); color: #fff; text-decoration: none; font-weight: 600; box-shadow: 0 0 14px rgba(252,63,29,0.4);">
+        <span>🇷🇺</span> Яндекс.Карты
+      </a>
       <div class="status-badge">
         <div class="status-dot"></div>
         <span id="serviceStatus">Сервис активен</span>
@@ -967,6 +970,11 @@
       maxZoom: 18
     });
 
+    const yandexTiles = L.tileLayer('https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&scale=1&lang=ru_RU', {
+      attribution: '&copy; Яндекс.Карты',
+      maxZoom: 18
+    });
+
     cartoDark.addTo(map);
 
     // Layer Groups
@@ -977,8 +985,9 @@
     // Basemap & Overlays switcher
     const baseMaps = {
       "CartoDB Dark": cartoDark,
-      "OpenStreetMap": osm,
-      "Спутник (Esri)": esriSatellite
+      "Спутник (Esri)": esriSatellite,
+      "Яндекс Схема": yandexTiles,
+      "OpenStreetMap": osm
     };
 
     const overlays = {
