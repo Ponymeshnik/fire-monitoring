@@ -281,3 +281,13 @@ async def upload_mask(file: UploadFile = File(...), gsd: float = Query(20.0, des
     geojson = mask_to_geojson(mask, transform, epsg_in=epsg, chip_id="uploaded")
     report = area_report(mask, gsd_m=gsd)
     return {"contours": geojson, "report": report}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    print("=" * 60)
+    print("Запуск Информационно-аналитического веб-сервиса...")
+    print("Карта и Web UI доступны по адресу: http://localhost:8000")
+    print("Интерактивная документация Swagger: http://localhost:8000/docs")
+    print("=" * 60)
+    uvicorn.run("src.service.app:app", host="0.0.0.0", port=8000, reload=True)
