@@ -1,6 +1,5 @@
 @echo off
 chcp 65001 > nul
-:: Переход в директорию самого скрипта (корень fire-monitoring)
 cd /d "%~dp0"
 
 echo ======================================================================
@@ -10,11 +9,16 @@ echo ======================================================================
 set CONDA_PYTHON=C:\ProgramData\miniconda3\envs\plextract1\python.exe
 
 if exist "%CONDA_PYTHON%" (
-    echo Используется Python из conda-окружения: %CONDA_PYTHON%
+    echo [OK] Найдено conda-окружение: %CONDA_PYTHON%
+    echo Запускаем сервер...
     "%CONDA_PYTHON%" run_service.py
 ) else (
-    echo Используется системный Python...
+    echo [INFO] Запуск через системный python...
     python run_service.py
 )
 
+echo.
+echo ======================================================================
+echo Сервер был остановлен или произошла ошибка.
+echo ======================================================================
 pause
