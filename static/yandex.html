@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>КосмоХакатон 2026 — Мониторинг пожаров (Яндекс.Карты)</title>
+  <title>Геопортал космического мониторинга природных пожаров (Яндекс.Карты)</title>
   
   <!-- Yandex Maps JS API 2.1 -->
   <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
@@ -11,35 +11,40 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #090d16;
-      --panel-bg: rgba(15, 23, 42, 0.88);
-      --panel-border: rgba(51, 65, 85, 0.6);
-      --accent-cyan: #38bdf8;
-      --accent-yandex: #fc3f1d;
-      --accent-amber: #f59e0b;
-      --sev1-color: #facc15;
-      --sev2-color: #fb923c;
+      --bg-canvas: #0b0f17;
+      --bg-navbar: #111722;
+      --bg-sidebar: #131a26;
+      --bg-card: #182232;
+      --bg-input: #0e141f;
+      --border-subtle: #202b3d;
+      --border-active: #3b82f6;
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --sev1-color: #ca8a04;
+      --sev2-color: #ea580c;
       --sev3-color: #dc2626;
-      --text-main: #f8fafc;
+      --text-main: #f1f5f9;
       --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --success: #10b981;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     body, html {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: var(--bg-dark);
+      background-color: var(--bg-canvas);
       color: var(--text-main);
     }
 
@@ -50,18 +55,16 @@
       width: 100vw;
     }
 
-    /* Top Navbar */
+    /* Top Institutional Header */
     .navbar {
-      height: 58px;
-      background: rgba(10, 15, 30, 0.96);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--panel-border);
+      height: 54px;
+      background: var(--bg-navbar);
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 18px;
       z-index: 1000;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
     .nav-brand {
@@ -70,121 +73,126 @@
       gap: 12px;
     }
 
-    .nav-logo {
-      width: 34px;
-      height: 34px;
-      background: linear-gradient(135deg, #fc3f1d, #f59e0b);
-      border-radius: 8px;
+    .nav-emblem {
+      width: 32px;
+      height: 32px;
+      background: #182438;
+      border: 1px solid #2b3b55;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 19px;
-      box-shadow: 0 0 16px rgba(252, 63, 29, 0.5);
+      color: #60a5fa;
     }
 
     .nav-title {
-      font-size: 15px;
+      font-size: 13.5px;
       font-weight: 700;
+      letter-spacing: 0.02em;
       color: #fff;
+      text-transform: uppercase;
     }
 
     .nav-badge-yandex {
-      background: #fc3f1d;
+      background: #dc2626;
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 4px;
-      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
       margin-left: 6px;
+      vertical-align: middle;
+      display: inline-block;
     }
 
     .nav-subtitle {
-      font-size: 12px;
-      color: var(--accent-cyan);
-      font-weight: 500;
-      padding-left: 8px;
-      border-left: 1px solid var(--panel-border);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-top: 1px;
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .btn {
+    .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 13px;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 11px;
       font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 4px 9px;
+      border-radius: 3px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--success);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.15s, border-color 0.15s;
+      border: 1px solid transparent;
+      outline: none;
       text-decoration: none;
-      border: none;
-    }
-
-    .btn-leaflet {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid var(--accent-cyan);
-      color: var(--accent-cyan);
-    }
-
-    .btn-leaflet:hover {
-      background: rgba(56, 189, 248, 0.25);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
+      background: var(--accent-blue);
+      border-color: #1d4ed8;
       color: #fff;
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-      box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+      background: var(--accent-blue-hover);
     }
 
     .btn-secondary {
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid var(--panel-border);
-      color: var(--text-main);
+      background: #182232;
+      border-color: var(--border-subtle);
+      color: #cbd5e1;
     }
 
     .btn-secondary:hover {
-      background: rgba(51, 65, 85, 0.9);
-      border-color: #64748b;
+      background: #202c40;
+      border-color: #334155;
+      color: #fff;
     }
 
-    .btn-export {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-      justify-content: center;
-      padding: 8px 12px;
-    }
-
-    .btn-export:hover {
-      background: rgba(16, 185, 129, 0.25);
-    }
-
-    /* Main Workspace */
+    /* Workspace */
     .workspace {
       display: flex;
       flex: 1;
-      height: calc(100vh - 58px);
       position: relative;
+      height: calc(100vh - 54px);
+      overflow: hidden;
     }
 
     /* Sidebar */
     .sidebar {
-      width: 360px;
-      background: var(--panel-bg);
-      backdrop-filter: blur(16px);
-      border-right: 1px solid var(--panel-border);
+      width: 370px;
+      min-width: 370px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
@@ -192,79 +200,55 @@
     }
 
     .sidebar-section {
-      padding: 16px;
-      border-bottom: 1px solid var(--panel-border);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent-cyan);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      letter-spacing: 0.06em;
+      color: #93c5fd;
     }
 
+    /* Form Controls */
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .form-label {
       display: block;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text-muted);
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
     .form-input {
       width: 100%;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--panel-border);
-      border-radius: 6px;
-      padding: 8px 10px;
-      color: #fff;
+      padding: 7px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      color: #f8fafc;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: border-color 0.15s;
     }
 
     .form-input:focus {
-      outline: none;
-      border-color: var(--accent-cyan);
-    }
-
-    .preset-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 6px;
-    }
-
-    .preset-pill {
-      font-size: 11px;
-      padding: 3px 8px;
-      background: rgba(30, 41, 59, 0.7);
-      border: 1px solid var(--panel-border);
-      border-radius: 4px;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s;
-    }
-
-    .preset-pill:hover {
-      background: rgba(56, 189, 248, 0.2);
-      color: #fff;
-      border-color: var(--accent-cyan);
+      border-color: var(--border-active);
     }
 
     .form-row {
@@ -273,57 +257,174 @@
       gap: 8px;
     }
 
-    /* Metric Cards */
-    .metric-card {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--panel-border);
-      border-radius: 8px;
+    /* Presets */
+    .preset-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .preset-pill {
+      font-size: 11px;
+      padding: 3px 7px;
+      background: #17202e;
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .preset-pill:hover {
+      background: #202b3d;
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+
+    /* KPI Summary Cards */
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
       padding: 12px;
       margin-bottom: 10px;
     }
 
-    .metric-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+    .kpi-title {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
     }
 
-    .metric-label {
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .kpi-sub {
       font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Severity Breakdown */
+    .sev-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #151d2a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      padding: 7px 10px;
+      margin-bottom: 5px;
+    }
+
+    .sev-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sev-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .sev-name {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sev-stat {
+      text-align: right;
+    }
+
+    .sev-area {
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sev-pct {
+      font-size: 10.5px;
+      color: var(--text-dim);
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: #0f1520;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      margin: 8px 0 12px 0;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .progress-seg-1 { background-color: var(--sev1-color); }
+    .progress-seg-2 { background-color: var(--sev2-color); }
+    .progress-seg-3 { background-color: var(--sev3-color); }
+
+    /* Operational Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .stat-box {
+      background: #151d2a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      padding: 8px;
+    }
+
+    .stat-label {
+      font-size: 10px;
       text-transform: uppercase;
       color: var(--text-muted);
       font-weight: 600;
     }
 
-    .metric-value {
-      font-size: 24px;
+    .stat-val {
+      font-size: 16px;
       font-weight: 700;
       color: #fff;
       font-family: 'JetBrains Mono', monospace;
       margin-top: 2px;
     }
 
-    .sev-bar-container {
-      margin-top: 8px;
-    }
-
-    .sev-row {
+    /* Export Buttons Stack */
+    .export-stack {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .btn-export {
+      background: #151e2b;
+      border: 1px solid var(--border-subtle);
+      color: #cbd5e1;
+      justify-content: flex-start;
+      padding: 7px 10px;
       font-size: 12px;
-      margin-bottom: 5px;
     }
 
-    .sev-indicator {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-      margin-right: 6px;
+    .btn-export:hover {
+      background: #1c2738;
+      border-color: #3b82f6;
+      color: #fff;
     }
 
-    /* Map container */
+    /* Map Viewport */
     .map-container {
       flex: 1;
       height: 100%;
@@ -333,151 +434,222 @@
     #yandex-map {
       width: 100%;
       height: 100%;
+      background-color: #0b0f17;
     }
 
-    /* Floating Map Legend */
+    /* Floating Strict Legend */
     .map-legend {
       position: absolute;
       bottom: 24px;
-      right: 20px;
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--panel-border);
-      border-radius: 8px;
-      padding: 12px 14px;
+      right: 18px;
+      background: #111722;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 10px 14px;
       z-index: 800;
-      font-size: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      font-size: 11px;
+      pointer-events: auto;
     }
 
     .legend-title {
+      font-size: 10.5px;
       font-weight: 700;
-      font-size: 11px;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
+      color: #cbd5e1;
     }
 
     .legend-swatch {
-      width: 16px;
-      height: 10px;
-      border-radius: 2px;
+      width: 14px;
+      height: 8px;
+      border-radius: 1px;
+    }
+
+    .legend-dot-fire {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      border: 1px solid #fff;
     }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Top Navigation Bar -->
+  <!-- Top Institutional Header -->
   <header class="navbar">
     <div class="nav-brand">
-      <div class="nav-logo">🔥</div>
-      <div>
-        <div class="nav-title">КосмоХакатон 2026 • Мониторинг пожаров <span class="nav-badge-yandex">Яндекс.Карты</span></div>
+      <div class="nav-emblem">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
       </div>
-      <div class="nav-subtitle">Нижнее Поволжье и Подонье (435 000 км²)</div>
+      <div>
+        <div class="nav-title">
+          Геопортал космического мониторинга природных пожаров
+          <span class="nav-badge-yandex">ЯНДЕКС.КАРТЫ</span>
+        </div>
+        <div class="nav-subtitle">Нижнее Поволжье и Подонье &bull; Модуль картографической привязки (Спутник / Гибрид)</div>
+      </div>
     </div>
 
     <div class="nav-actions">
-      <a href="/" class="btn btn-leaflet">
-        <span>🌐</span> Перейти в Leaflet (Global)
+      <a href="/" class="btn btn-secondary">
+        <span>Режим: Global Leaflet</span>
       </a>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        <span>СИСТЕМА АКТИВНА</span>
+      </div>
       <button class="btn btn-secondary" onclick="fitYandexAOI()">
-        <span>🎯</span> К границам AOI
+        <span>Границы AOI</span>
       </button>
     </div>
   </header>
 
   <!-- Main Content Workspace -->
   <div class="workspace">
-    <!-- Left Sidebar -->
+    <!-- Left Sidebar: Controls & Analytics -->
     <aside class="sidebar">
-      <!-- Parameters -->
+      <!-- Section 1: Query Filters -->
       <div class="sidebar-section">
         <div class="section-header">
-          <div class="section-title">
-            <span>⚙️</span> Фильтры мониторинга
-          </div>
+          <div class="section-title">01. Параметры пространственного запроса</div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Ограничивающий прямоугольник (bbox)</label>
-          <input type="text" id="bboxInput" class="form-input" value="38.3,44.6,48.0,52.7">
+          <label class="form-label">Ограничивающий прямоугольник (BBOX)</label>
+          <input type="text" id="bboxInput" class="form-input" value="38.3,44.6,48.0,52.7" placeholder="min_lon,min_lat,max_lon,max_lat">
           <div class="preset-pills">
-            <span class="preset-pill" onclick="setPreset('38.3,44.6,48.0,52.7')">Вся AOI</span>
-            <span class="preset-pill" onclick="setPreset('42.5,47.8,46.5,51.2')">Волгоград</span>
-            <span class="preset-pill" onclick="setPreset('38.3,46.0,42.5,49.8')">Ростов</span>
-            <span class="preset-pill" onclick="setPreset('46.0,45.4,48.0,48.5')">Астрахань</span>
-            <span class="preset-pill" onclick="setPreset('42.0,44.8,47.5,47.8')">Калмыкия</span>
+            <span class="preset-pill" onclick="setBboxPreset('aoi')">Все регионы (AOI)</span>
+            <span class="preset-pill" onclick="setBboxPreset('volgograd')">Волгоград</span>
+            <span class="preset-pill" onclick="setBboxPreset('rostov')">Ростов</span>
+            <span class="preset-pill" onclick="setBboxPreset('astrakhan')">Астрахань</span>
+            <span class="preset-pill" onclick="setBboxPreset('kalmykia')">Калмыкия</span>
+            <span class="preset-pill" onclick="setBboxPreset('saratov')">Саратов</span>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Дата от</label>
+            <label class="form-label">Период с</label>
             <input type="date" id="dateFrom" class="form-input" value="2025-04-01">
           </div>
           <div class="form-group">
-            <label class="form-label">Дата до</label>
+            <label class="form-label">Период по</label>
             <input type="date" id="dateTo" class="form-input" value="2025-10-31">
           </div>
         </div>
 
         <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 4px;" onclick="loadData()">
-          <span>🔍</span> Запросить данные
+          <span id="querySpinner" style="display:none;">⏳</span>
+          <span>Запросить данные мониторинга</span>
         </button>
       </div>
 
-      <!-- Analytics -->
+      <!-- Section 2: Analytics & Summary Report -->
       <div class="sidebar-section">
-        <div class="section-title" style="margin-bottom: 12px;">
-          <span>📊</span> Аналитический отчёт
+        <div class="section-header">
+          <div class="section-title">02. Оперативная аналитическая сводка</div>
+          <span id="reportStatus" style="font-size: 10.5px; color: var(--accent-blue); font-weight: 500;">Данные актуальны</span>
         </div>
 
-        <div class="metric-card">
-          <div class="metric-label">Общая площадь гарей</div>
-          <div class="metric-value"><span id="valTotalArea">0.0</span> <span style="font-size:14px; color:var(--text-muted)">га</span></div>
+        <!-- KPI: Total Burn Area -->
+        <div class="kpi-card">
+          <div class="kpi-title">Суммарная площадь выгорания</div>
+          <div class="kpi-value" id="kpiTotalHa">0.00 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">га</span></div>
+          <div class="kpi-sub" id="kpiTotalKm">0.00 км² (GSD: 20м = 0.04 га/пикс)</div>
         </div>
 
-        <div class="metric-card">
-          <div class="metric-label">Термоточки активного горения</div>
-          <div class="metric-value" style="color: #ef4444;"><span id="valTotalHotspots">0</span> <span style="font-size:14px; color:var(--text-muted)">очагов</span></div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-label">Степени поражения (Sentinel-2)</div>
-          <div class="sev-bar-container">
-            <div class="sev-row">
-              <div><span class="sev-indicator" style="background: var(--sev1-color);"></span>Слабая (Класс 1)</div>
-              <div><strong id="valSev1">0</strong> га (<span id="pctSev1">0%</span>)</div>
+        <!-- Severity Breakdown -->
+        <div class="sev-card">
+          <div class="sev-info">
+            <div class="sev-indicator" style="background-color: var(--sev1-color);"></div>
+            <div>
+              <div class="sev-name" style="color: #fef08a;">Слабая степень (Класс 1)</div>
+              <div class="sev-pct">Поверхностный пал растительности</div>
             </div>
-            <div class="sev-row">
-              <div><span class="sev-indicator" style="background: var(--sev2-color);"></span>Средняя (Класс 2)</div>
-              <div><strong id="valSev2">0</strong> га (<span id="pctSev2">0%</span>)</div>
-            </div>
-            <div class="sev-row">
-              <div><span class="sev-indicator" style="background: var(--sev3-color);"></span>Сильная (Класс 3)</div>
-              <div><strong id="valSev3">0</strong> га (<span id="pctSev3">0%</span>)</div>
-            </div>
+          </div>
+          <div class="sev-stat">
+            <div class="sev-area" id="sev1Ha">0.0 га</div>
+            <div class="sev-pct" id="sev1Pct">0.0%</div>
           </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-          <a href="/export/geojson?layer=contours" class="btn btn-export">
-            <span>📥</span> Скачать контуры гарей (GeoJSON)
-          </a>
-          <a href="/export/geojson?layer=thermopoints" class="btn btn-export">
-            <span>📥</span> Скачать термоточки (GeoJSON)
-          </a>
-          <a href="/export/shapefile?layer=contours" class="btn btn-export">
-            <span>📦</span> Скачать архив Shapefile (.zip)
-          </a>
+        <div class="sev-card">
+          <div class="sev-info">
+            <div class="sev-indicator" style="background-color: var(--sev2-color);"></div>
+            <div>
+              <div class="sev-name" style="color: #fed7aa;">Средняя степень (Класс 2)</div>
+              <div class="sev-pct">Степной прогар травяного яруса</div>
+            </div>
+          </div>
+          <div class="sev-stat">
+            <div class="sev-area" id="sev2Ha">0.0 га</div>
+            <div class="sev-pct" id="sev2Pct">0.0%</div>
+          </div>
+        </div>
+
+        <div class="sev-card">
+          <div class="sev-info">
+            <div class="sev-indicator" style="background-color: var(--sev3-color);"></div>
+            <div>
+              <div class="sev-name" style="color: #fca5a5;">Сильная степень (Класс 3)</div>
+              <div class="sev-pct">Полное сгорание кустарников и леса</div>
+            </div>
+          </div>
+          <div class="sev-stat">
+            <div class="sev-area" id="sev3Ha">0.0 га</div>
+            <div class="sev-pct" id="sev3Pct">0.0%</div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-bg">
+          <div id="progSev1" class="progress-seg-1" style="width: 33%;"></div>
+          <div id="progSev2" class="progress-seg-2" style="width: 33%;"></div>
+          <div id="progSev3" class="progress-seg-3" style="width: 34%;"></div>
+        </div>
+
+        <!-- Operational Statistics -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Термоточки (VIIRS)</div>
+            <div class="stat-val" id="statTpCount">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Контуры гарей (S2)</div>
+            <div class="stat-val" id="statContCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Data Export -->
+      <div class="sidebar-section">
+        <div class="section-title" style="margin-bottom: 8px;">03. Экспорт данных и отчетности</div>
+        <div class="export-stack">
+          <button class="btn btn-export" onclick="exportData('geojson', 'contours')">
+            <span>Выгрузить полигоны гарей (GeoJSON)</span>
+          </button>
+          <button class="btn btn-export" onclick="exportData('geojson', 'thermopoints')">
+            <span>Выгрузить термоточки горения (GeoJSON)</span>
+          </button>
+          <button class="btn btn-export" onclick="exportData('shapefile', 'contours')">
+            <span>Выгрузить пакет ESRI Shapefile (.zip)</span>
+          </button>
         </div>
       </div>
     </aside>
@@ -486,28 +658,28 @@
     <main class="map-container">
       <div id="yandex-map"></div>
 
-      <!-- Legend -->
+      <!-- Floating Strict Legend -->
       <div class="map-legend">
-        <div class="legend-title">Обозначения на карте</div>
+        <div class="legend-title">Условные обозначения</div>
         <div class="legend-item">
-          <span style="font-size: 16px;">🔥</span>
-          <span>Термоточка горения (VIIRS)</span>
+          <div class="legend-dot-fire"></div>
+          <span>Термоточка горения (VIIRS 375м)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background: #facc15;"></div>
-          <span>Слабая тяжесть (Класс 1)</span>
+          <div class="legend-swatch" style="background-color: var(--sev1-color);"></div>
+          <span>Поражение I степени (слабая)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background: #fb923c;"></div>
-          <span>Средняя тяжесть (Класс 2)</span>
+          <div class="legend-swatch" style="background-color: var(--sev2-color);"></div>
+          <span>Поражение II степени (средняя)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background: #dc2626;"></div>
-          <span>Сильная тяжесть (Класс 3)</span>
+          <div class="legend-swatch" style="background-color: var(--sev3-color);"></div>
+          <span>Поражение III степени (сильная)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="border: 2px dashed #38bdf8; background: rgba(56, 189, 248, 0.1);"></div>
-          <span>Граница зоны мониторинга</span>
+          <div class="legend-swatch" style="background: transparent; border: 1.5px dashed #38bdf8;"></div>
+          <span>Граница зоны мониторинга (AOI)</span>
         </div>
       </div>
     </main>
@@ -516,16 +688,24 @@
 
 <script>
   let yMap = null;
-  let aoiGeoObject = null;
   let aoiCollection = null;
   let contoursCollection = null;
   let hotspotsCollection = null;
 
-  // Helper: Invert GeoJSON coordinates [longitude, latitude] -> Yandex [latitude, longitude]
+  const PRESETS = {
+    'aoi': '38.3,44.6,48.0,52.7',
+    'volgograd': '42.5,47.8,46.5,51.2',
+    'rostov': '38.3,46.0,42.5,49.8',
+    'astrakhan': '46.0,45.4,48.0,48.5',
+    'kalmykia': '42.0,44.8,47.5,47.8',
+    'saratov': '45.0,50.5,50.5,52.8'
+  };
+
+  // Coordinate converter: GeoJSON [lon, lat] -> Yandex [lat, lon]
   function toYandexCoords(coords) {
     if (!Array.isArray(coords)) return coords;
     if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-      return [coords[1], coords[0]]; // [lon, lat] -> [lat, lon]
+      return [coords[1], coords[0]];
     }
     return coords.map(toYandexCoords);
   }
@@ -534,16 +714,16 @@
 
   function initYandexMap() {
     yMap = new ymaps.Map("yandex-map", {
-      center: [48.5, 43.5], // Нижнее Поволжье и Дон: 48.5°N, 43.5°E
+      center: [48.5, 43.5], // Нижнее Поволжье и Подонье
       zoom: 6,
-      type: 'yandex#hybrid', // Спутниковый гибрид с надписями
+      type: 'yandex#hybrid', // Спутниковый гибрид
       controls: ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl']
     });
 
     aoiCollection = new ymaps.GeoObjectCollection({}, {});
     contoursCollection = new ymaps.GeoObjectCollection({}, {
-      strokeWidth: 2,
-      fillOpacity: 0.6
+      strokeWidth: 1.5,
+      fillOpacity: 0.55
     });
     hotspotsCollection = new ymaps.GeoObjectCollection({}, {});
 
@@ -555,9 +735,11 @@
     loadData();
   }
 
-  function setPreset(bbox) {
-    document.getElementById('bboxInput').value = bbox;
-    loadData();
+  function setBboxPreset(name) {
+    if (PRESETS[name]) {
+      document.getElementById('bboxInput').value = PRESETS[name];
+      loadData();
+    }
   }
 
   function fitYandexAOI() {
@@ -580,29 +762,29 @@
           if (feat.geometry && feat.geometry.coordinates) {
             const yCoords = toYandexCoords(feat.geometry.coordinates);
             const poly = new ymaps.Polygon(yCoords, {
-              hintContent: `<strong>${feat.properties.name || 'Граница зоны'}</strong>`,
-              balloonContentHeader: `<strong>🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
+              hintContent: `<strong>${feat.properties.name || 'Граница зоны мониторинга'}</strong>`,
+              balloonContentHeader: `<span style="font-weight:700; color:#1e3a8a; font-size:13px;">🛡️ ${feat.properties.name || 'Граница зоны мониторинга'}</span>`,
               balloonContentBody: `
-                <div style="font-size:13px; line-height:1.6;">
-                  <div><strong>Назначение:</strong> ${feat.properties.role || 'Зона мониторинга'}</div>
-                  <div><strong>Площадь:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
-                  <div><strong>Регионы:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
-                  <div><strong>Сезоны:</strong> ${feat.properties.seasons || '2019–2025'}</div>
+                <div style="font-size:12px; line-height:1.6; color:#1f2937; padding:4px 0;">
+                  <div><strong>Назначение:</strong> ${feat.properties.role || 'Оперативный спутниковый контроль'}</div>
+                  <div><strong>Охват площади:</strong> ${(feat.properties.area_km2 || 435273).toLocaleString()} км²</div>
+                  <div><strong>Субъекты РФ:</strong> ${feat.properties.subjects || 'Нижнее Поволжье и Подонье'}</div>
+                  <div><strong>Период наблюдений:</strong> ${feat.properties.seasons || '2019–2025'}</div>
                 </div>
               `
             }, {
               strokeColor: '#38bdf8',
-              strokeWidth: 2.5,
-              strokePattern: [6, 6],
+              strokeWidth: 2,
+              strokePattern: [6, 4],
               fillColor: '#38bdf8',
-              fillOpacity: 0.06
+              fillOpacity: 0.05
             });
             aoiCollection.add(poly);
           }
         });
       }
     } catch (e) {
-      console.log("AOI loading:", e);
+      console.log("AOI loading error:", e);
     }
   }
 
@@ -610,16 +792,21 @@
     const bbox = document.getElementById('bboxInput').value.trim();
     const dFrom = document.getElementById('dateFrom').value;
     const dTo = document.getElementById('dateTo').value;
+    const spinner = document.getElementById('querySpinner');
+
+    if (spinner) spinner.style.display = 'inline';
 
     try {
       const url = `/query?bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error("Query failed");
+      if (!res.ok) throw new Error("Query error: " + res.status);
       const data = await res.json();
 
       renderData(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      if (spinner) spinner.style.display = 'none';
     }
   }
 
@@ -629,49 +816,69 @@
 
     // 1. Render Contours
     if (data.contours && data.contours.features) {
+      document.getElementById('statContCount').textContent = data.contours.features.length;
+
       data.contours.features.forEach(feat => {
         const cp = feat.properties || {};
         const cid = cp.class_id || 1;
-        let color = '#dc2626';
-        if (cid === 1) color = '#facc15';
-        else if (cid === 2) color = '#fb923c';
+        let color = '#dc2626'; // Class 3
+        let badgeBg = '#fef2f2';
+        let badgeColor = '#991b1b';
+        if (cid === 1) {
+          color = '#ca8a04';
+          badgeBg = '#fefce8';
+          badgeColor = '#854d0e';
+        } else if (cid === 2) {
+          color = '#ea580c';
+          badgeBg = '#fff7ed';
+          badgeColor = '#9a3412';
+        }
 
         const cId = cp.contour_id || 'Контур гари';
         const cSev = cp.severity || (cid === 1 ? 'слабая' : (cid === 2 ? 'средняя' : 'сильная'));
         const cArea = cp.area_ha !== undefined ? Number(cp.area_ha).toFixed(2) : '—';
-        const cSat = cp.satellite || 'Sentinel-2 MSI';
+        const cSat = cp.satellite || 'Sentinel-2 MSI (GSD 20м)';
         const cDate = cp.date || '—';
         const cFireEvent = cp.fire_event_id || '';
 
-        // Convert [lon, lat] -> [lat, lon]
         const yandexCoords = toYandexCoords(feat.geometry.coordinates);
 
         const poly = new ymaps.Polygon(yandexCoords, {
           hintContent: `<strong>${cId}</strong><br>Степень: ${cSev}<br>Площадь: ${cArea} га`,
-          balloonContentHeader: `<span style="color:${color}; font-weight:bold; font-size:14px;">🔥 ${cId}</span>`,
+          balloonContentHeader: `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-weight:700; color:#0f172a; font-size:13px;">${cId}</span>
+              <span style="background:${badgeBg}; color:${badgeColor}; font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:3px; border:1px solid ${color};">
+                КЛАСС ${cid} (${cSev.toUpperCase()})
+              </span>
+            </div>
+          `,
           balloonContentBody: `
-            <div style="font-size:13px; line-height:1.6; padding: 4px 0;">
-              <div><strong>Степень поражения:</strong> <span style="color:${color}; font-weight:bold;">${cSev} (Класс ${cid})</span></div>
-              <div><strong>Площадь гари:</strong> <strong>${cArea} га</strong></div>
-              <div><strong>Спутник:</strong> ${cSat}</div>
-              <div><strong>Дата съемки:</strong> ${cDate}</div>
+            <div style="font-size:12px; line-height:1.6; color:#334155; padding: 4px 0;">
+              <div><strong>Площадь выгорания:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#0f172a;">${cArea} га</span></div>
+              <div><strong>Спутниковый сенсор:</strong> ${cSat}</div>
+              <div><strong>Дата фиксации:</strong> ${cDate}</div>
               ${cFireEvent ? `<div><strong>ID пожарного события:</strong> ${cFireEvent}</div>` : ''}
-              ${cp.source_chip ? `<div><strong>Тестовый чип:</strong> ${cp.source_chip}</div>` : ''}
+              ${cp.source_chip ? `<div><strong>Идентификатор чипа:</strong> ${cp.source_chip}</div>` : ''}
             </div>
           `
         }, {
           fillColor: color,
           fillOpacity: 0.55,
           strokeColor: color,
-          strokeWidth: 2
+          strokeWidth: 1.5
         });
 
         contoursCollection.add(poly);
       });
+    } else {
+      document.getElementById('statContCount').textContent = '0';
     }
 
     // 2. Render Hotspots
     if (data.thermopoints && data.thermopoints.features) {
+      document.getElementById('statTpCount').textContent = data.thermopoints.features.length;
+
       data.thermopoints.features.forEach(feat => {
         const coords = [feat.geometry.coordinates[1], feat.geometry.coordinates[0]];
         const p = feat.properties || {};
@@ -679,23 +886,27 @@
         const bTemp = p.brightness_k || p.brightness_temp_k || 334.2;
         const bTempC = (bTemp - 273.15).toFixed(1);
         const frpVal = p.frp_mw || p.frp || 45.0;
-        const confVal = p.confidence ? Math.round(p.confidence) : 92;
+        const confVal = p.confidence ? Math.round(p.confidence) : 90;
         const satVal = p.satellite || "VIIRS 375m (SNPP / NOAA-20)";
         const dateVal = p.date || (p.acq_datetime ? p.acq_datetime.split('T')[0] : '—');
         const tpId = p.id || 'TP_VIIRS';
 
         const placemark = new ymaps.Placemark(coords, {
-          hintContent: `<strong>Очаг горения ${tpId}</strong><br>Температура: ${bTemp} K (+${bTempC} °C)<br>Мощность (FRP): ${frpVal} МВт`,
-          balloonContentHeader: `<span style="color:#ef4444; font-weight:bold; font-size:14px;">🚨 Очаг активного горения (${tpId})</span>`,
+          hintContent: `<strong>Термоточка ${tpId}</strong><br>T: ${bTemp} K (+${bTempC} °C)<br>FRP: ${frpVal} МВт`,
+          balloonContentHeader: `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-weight:700; color:#991b1b; font-size:13px;">🚨 ОЧАГ ГОРЕНИЯ (${tpId})</span>
+              <span style="background:#fee2e2; color:#991b1b; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">VIIRS 375M</span>
+            </div>
+          `,
           balloonContentBody: `
-            <div style="font-size:13px; line-height:1.6; padding: 4px 0;">
-              <div><strong>Яркостная температура:</strong> <span style="color:#f87171; font-weight:bold;">${bTemp} K (+${bTempC} °C)</span></div>
-              <div><strong>Мощность излучения (FRP):</strong> <strong>${frpVal} МВт</strong></div>
-              <div><strong>Достоверность детекции:</strong> <span style="color:#34d399; font-weight:bold;">${confVal}%</span></div>
+            <div style="font-size:12px; line-height:1.6; color:#334155; padding: 4px 0;">
+              <div><strong>Яркостная температура:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#b91c1c;">${bTemp} K (+${bTempC} °C)</span></div>
+              <div><strong>Мощность излучения (FRP):</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700;">${frpVal} МВт</span></div>
+              <div><strong>Достоверность детекции:</strong> <span style="color:#047857; font-weight:700;">${confVal}%</span></div>
               <div><strong>Спутник / Сенсор:</strong> ${satVal}</div>
-              <div><strong>Дата фиксации:</strong> ${dateVal}</div>
-              <div><strong>Координаты:</strong> ${coords[0].toFixed(4)}°N, ${coords[1].toFixed(4)}°E</div>
-              ${p.chip_id ? `<div><strong>Тестовый чип:</strong> ${p.chip_id}</div>` : ''}
+              <div><strong>Дата регистрации:</strong> ${dateVal}</div>
+              <div><strong>Координаты:</strong> <span style="font-family:'JetBrains Mono',monospace;">${coords[0].toFixed(4)}°N, ${coords[1].toFixed(4)}°E</span></div>
             </div>
           `
         }, {
@@ -704,33 +915,52 @@
 
         hotspotsCollection.add(placemark);
       });
+    } else {
+      document.getElementById('statTpCount').textContent = '0';
     }
 
-    // 3. Update Analytics
+    // 3. Update Operational Analytics
     if (data.report) {
       const r = data.report;
       const totalHa = r.total_ha || r.total_burned_area_ha || 0;
-      const totalTp = r.total_thermopoints || r.active_hotspots_count || (data.thermopoints ? data.thermopoints.features.length : 0);
+      const totalKm2 = (totalHa / 100).toFixed(2);
       
-      document.getElementById('valTotalArea').textContent = Number(totalHa).toLocaleString('ru-RU', {maximumFractionDigits: 1});
-      document.getElementById('valTotalHotspots').textContent = totalTp;
+      document.getElementById('kpiTotalHa').innerHTML = `${Number(totalHa).toLocaleString('ru-RU', {minimumFractionDigits: 1, maximumFractionDigits: 1})} <span style="font-size:14px; font-weight:400; color:var(--text-muted)">га</span>`;
+      document.getElementById('kpiTotalKm').textContent = `${totalKm2} км² (GSD: 20м = 0.04 га/пикс)`;
 
       const s1 = r.sev1_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["1"]) || 0;
       const s2 = r.sev2_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["2"]) || 0;
       const s3 = r.sev3_ha || (r.severity_breakdown_ha && r.severity_breakdown_ha["3"]) || 0;
 
-      document.getElementById('valSev1').textContent = Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1});
-      document.getElementById('valSev2').textContent = Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1});
-      document.getElementById('valSev3').textContent = Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1});
+      document.getElementById('sev1Ha').textContent = Number(s1).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+      document.getElementById('sev2Ha').textContent = Number(s2).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
+      document.getElementById('sev3Ha').textContent = Number(s3).toLocaleString('ru-RU', {maximumFractionDigits: 1}) + ' га';
 
       const p1 = r.sev1_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["1"]) || (totalHa > 0 ? (s1/totalHa*100).toFixed(1) : 0);
       const p2 = r.sev2_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["2"]) || (totalHa > 0 ? (s2/totalHa*100).toFixed(1) : 0);
       const p3 = r.sev3_pct || (r.severity_breakdown_pct && r.severity_breakdown_pct["3"]) || (totalHa > 0 ? (s3/totalHa*100).toFixed(1) : 0);
 
-      document.getElementById('pctSev1').textContent = p1 + '%';
-      document.getElementById('pctSev2').textContent = p2 + '%';
-      document.getElementById('pctSev3').textContent = p3 + '%';
+      document.getElementById('sev1Pct').textContent = p1 + '%';
+      document.getElementById('sev2Pct').textContent = p2 + '%';
+      document.getElementById('sev3Pct').textContent = p3 + '%';
+
+      document.getElementById('progSev1').style.width = p1 + '%';
+      document.getElementById('progSev2').style.width = p2 + '%';
+      document.getElementById('progSev3').style.width = p3 + '%';
     }
+  }
+
+  function exportData(format, layer) {
+    const bbox = document.getElementById('bboxInput').value.trim();
+    const dFrom = document.getElementById('dateFrom').value;
+    const dTo = document.getElementById('dateTo').value;
+    let url = '';
+    if (format === 'geojson') {
+      url = `/export/geojson?layer=${layer}&bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}`;
+    } else if (format === 'shapefile') {
+      url = `/export/shapefile?layer=${layer}&bbox=${encodeURIComponent(bbox)}&date_from=${dFrom}&date_to=${dTo}`;
+    }
+    window.location.href = url;
   }
 </script>
 
