@@ -1317,23 +1317,23 @@
         const isFlare = p.is_flare || false;
         const pointLabel = p.point_label || (isFlare ? "Техногенный факел" : "Природный пожар");
 
-        const iconPreset = isFlare ? 'islands#grayIcon' : 'islands#redFireIcon';
+        const iconPreset = isFlare ? 'islands#darkOrangeCircleDotIcon' : 'islands#redCircleDotIcon';
 
         const placemark = new ymaps.Placemark(coords, {
           hintContent: `<strong>${pointLabel} (${tpId})</strong><br>T: ${bTemp} K (+${bTempC} °C)<br>FRP: ${frpVal} МВт`,
           balloonContentHeader: `
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-              <span style="font-weight:700; color:${isFlare ? '#475569' : '#991b1b'}; font-size:13px;">
+              <span style="font-weight:700; color:${isFlare ? '#c2410c' : '#991b1b'}; font-size:13px;">
                 ${isFlare ? '🏭 ТЕХНОГЕННЫЙ ФАКЕЛ' : '🚨 ОЧАГ ГОРЕНИЯ'} (${tpId})
               </span>
-              <span style="background:${isFlare ? '#f1f5f9' : '#fee2e2'}; color:${isFlare ? '#334155' : '#991b1b'}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">
+              <span style="background:${isFlare ? '#fff7ed' : '#fee2e2'}; color:${isFlare ? '#9a3412' : '#991b1b'}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">
                 VIIRS 375M
               </span>
             </div>
           `,
           balloonContentBody: `
             <div style="font-size:12px; line-height:1.6; color:#334155; padding: 4px 0;">
-              <div><strong>Тип классификации:</strong> <span style="font-weight:700; color:${isFlare ? '#2563eb' : '#dc2626'};">${pointLabel}</span></div>
+              <div><strong>Тип классификации:</strong> <span style="font-weight:700; color:${isFlare ? '#c2410c' : '#dc2626'};">${pointLabel}</span></div>
               ${p.facility ? `<div><strong>Предприятие:</strong> <strong>${p.facility}</strong></div>` : ''}
               <div><strong>Яркостная температура:</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#b91c1c;">${bTemp} K (+${bTempC} °C)</span></div>
               <div><strong>Мощность излучения (FRP):</strong> <span style="font-family:'JetBrains Mono',monospace; font-weight:700;">${frpVal} МВт</span></div>
@@ -1344,7 +1344,8 @@
             </div>
           `
         }, {
-          preset: iconPreset
+          preset: iconPreset,
+          iconColor: isFlare ? '#f97316' : '#ef4444'
         });
 
         hotspotsCollection.add(placemark);
